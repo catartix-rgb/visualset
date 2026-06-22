@@ -9,6 +9,7 @@ export type SceneId =
   | "geometric"
   | "feedback"
   | "particles"
+  | "rawcam"
   | "camerafx";
 
 /** Generic visual parameters. Every scene reads the subset it needs as uniforms. */
@@ -52,6 +53,7 @@ export interface CameraMapping {
   motionToDistortion: number;
   feedToColor: number; // blend camera image into the look
   mirror: boolean;
+  sendToEngine: boolean; // when false, the camera stays independent of generative scenes
 }
 
 export interface VisualState {
@@ -83,15 +85,9 @@ export const SCENES: SceneMeta[] = [
   { id: "geometric", name: "Geometric", tags: ["shapes", "reactive"] },
   { id: "feedback", name: "Feedback / Trails", tags: ["glitch", "feedback", "trails"] },
   { id: "particles", name: "Particle Flow", tags: ["particles", "flowfield", "fluid"] },
-  { id: "camerafx", name: "Camera FX", tags: ["camera", "halftone", "ascii", "edge"] },
+  { id: "rawcam", name: "Raw Camera", tags: ["camera", "clean", "source"] },
+  { id: "camerafx", name: "Camera FX", tags: ["camera", "halftone", "edge", "dither"] },
 ];
 
-export const CAMFX_MODES = [
-  "Halftone",
-  "Dot Matrix",
-  "ASCII",
-  "Edge",
-  "Posterize",
-  "Threshold",
-  "Mono",
-] as const;
+/** Scenes that are camera sources rather than generative engines. */
+export const CAMERA_SCENES: SceneId[] = ["rawcam", "camerafx"];

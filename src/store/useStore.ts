@@ -96,8 +96,8 @@ export const useStore = create<Store>((set, get) => ({
         // keep the camfx mode when switching INTO camerafx, otherwise reroll params
         params: { ...generateParams(s.seed, id), camfxMode: s.params.camfxMode },
       };
-      // Camera FX needs the webcam — enable it implicitly for convenience
-      if (id === "camerafx" && !s.cameraOn) {
+      // Camera scenes need the webcam — enable it implicitly for convenience
+      if ((id === "camerafx" || id === "rawcam") && !s.cameraOn) {
         next.cameraOn = true;
         next.camera = { ...s.camera, enabled: true };
       }

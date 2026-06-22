@@ -2,7 +2,7 @@
 import { useControls, folder } from "leva";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
-import { DITHER_ALGOS, HALFTONE_SHAPES, type CamFx, type CamFxStage } from "@/lib/fx";
+import { DITHER_ALGOS, HALFTONE_SHAPES, SORT_DIRECTIONS, type CamFx, type CamFxStage } from "@/lib/fx";
 
 /**
  * Registers all Leva controls and binds them to the store. Keyed by `${seed}:${sceneId}`
@@ -42,6 +42,15 @@ export function ControlPanel() {
       ? {
           "Camera FX": folder(
             {
+              Distort: folder(
+                {
+                  enabled: bool("distort", "on"),
+                  touch: num("distort", "touch", { min: 0, max: 3 }),
+                  bass: num("distort", "bass", { min: 0, max: 3 }),
+                  jitter: num("distort", "jitter", { min: 0, max: 3 }),
+                },
+                { collapsed: true }
+              ),
               Halftone: folder(
                 {
                   enabled: bool("halftone", "on"),
@@ -77,6 +86,8 @@ export function ControlPanel() {
                   },
                   scale: num("dither", "scale", { min: 0.5, max: 4 }),
                   threshold: num("dither", "threshold", { min: 0, max: 1 }),
+                  contrast: num("dither", "contrast", { min: 0.2, max: 3 }),
+                  noise: num("dither", "noise", { min: 0, max: 1 }),
                   audio: num("dither", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
@@ -85,6 +96,7 @@ export function ControlPanel() {
                 {
                   enabled: bool("edge", "on"),
                   strength: num("edge", "strength", { min: 0, max: 12 }),
+                  thickness: num("edge", "thickness", { min: 0, max: 4 }),
                   glow: num("edge", "glow", { min: 0, max: 3 }),
                   invert: bool("edge", "invert"),
                   audio: num("edge", "audio", { min: 0, max: 2 }),
@@ -120,8 +132,15 @@ export function ControlPanel() {
               "Pixel Sort": folder(
                 {
                   enabled: bool("pixelsort", "on"),
+                  direction: {
+                    value: SORT_DIRECTIONS[fx.pixelsort.direction],
+                    options: SORT_DIRECTIONS as unknown as string[],
+                    onChange: (n: string) =>
+                      setCamFx("pixelsort", { direction: SORT_DIRECTIONS.indexOf(n as never) }),
+                  },
                   amount: num("pixelsort", "amount", { min: 0, max: 1 }),
                   threshold: num("pixelsort", "threshold", { min: 0, max: 1 }),
+                  speed: num("pixelsort", "speed", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
@@ -133,12 +152,20 @@ export function ControlPanel() {
                 },
                 { collapsed: true }
               ),
-              "Scanlines / CRT": folder(
+              Scanlines: folder(
                 {
                   enabled: bool("scan", "on"),
                   intensity: num("scan", "intensity", { min: 0, max: 1 }),
-                  count: num("scan", "count", { min: 100, max: 1400, step: 10 }),
-                  crt: bool("scan", "crt"),
+                  spacing: num("scan", "spacing", { min: 100, max: 1400, step: 10 }),
+                  thickness: num("scan", "thickness", { min: 0, max: 1 }),
+                },
+                { collapsed: true }
+              ),
+              CRT: folder(
+                {
+                  enabled: bool("crt", "on"),
+                  curvature: num("crt", "curvature", { min: 0, max: 1 }),
+                  glow: num("crt", "glow", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
@@ -220,6 +247,7 @@ export function ControlPanel() {
       ),
       "Camera Mapping": folder(
         {
+          "send to engine": { value: c.sendToEngine, onChange: (v: boolean) => setCameraMap({ sendToEngine: v }) },
           feedToColor: { value: c.feedToColor, min: 0, max: 1, onChange: (v: number) => setCameraMap({ feedToColor: v }) },
           motionToForce: { value: c.motionToForce, min: 0, max: 3, onChange: (v: number) => setCameraMap({ motionToForce: v }) },
           motionToDistort: { value: c.motionToDistortion, min: 0, max: 3, onChange: (v: number) => setCameraMap({ motionToDistortion: v }) },

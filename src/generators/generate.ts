@@ -64,14 +64,16 @@ export function defaultCameraMapping(): CameraMapping {
     enabled: false,
     motionToForce: 1,
     motionToDistortion: 0.8,
-    feedToColor: 0.0,
+    feedToColor: 0.6,
     mirror: true,
+    sendToEngine: false,
   };
 }
 
-/** Pick a scene at random (used by "Generate" when scene-lock is off). */
+/** Pick a generative scene at random (Generate never jumps to a camera source). */
 export function randomScene(seed: string): SceneId {
-  return new Rng(seed + ":scene").pick(SCENES).id;
+  const generative = SCENES.filter((s) => s.id !== "rawcam" && s.id !== "camerafx");
+  return new Rng(seed + ":scene").pick(generative).id;
 }
 
 export { generateSeed };

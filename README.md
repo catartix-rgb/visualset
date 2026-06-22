@@ -26,11 +26,14 @@ GPU in the browser).
   scene reads it, so you can drag particles, carve tunnels in the smoke, raise deep
   liquid waves and spin vortices by touch — with editable Force, Radius, Persistence,
   Turbulence, Fluidity and Elasticity.
-- **Modular Camera FX** — a stackable image-processing chain over the webcam: Halftone,
-  Dot Matrix, Dither (Bayer/Ordered/Atkinson/Random), Edge, Posterize, Threshold,
-  Monochrome, Pixel Sort, Chromatic Aberration, Scanlines/CRT, Bloom and Film Grain —
-  each independently toggleable with its own parameters and audio routing, like a small
-  TouchDesigner node chain.
+- **Independent camera pipeline** — the camera is its own module, decoupled from the
+  visual engine. **Raw Camera** shows the clean image; **Camera FX** is a stackable
+  image-processing chain: Distort (optional, off by default), Halftone, Dot Matrix,
+  Dither (Bayer/Ordered/Atkinson/Random), Edge, Posterize, Threshold, Monochrome,
+  Pixel Sort, Chromatic Aberration, Scanlines, CRT, Bloom and Film Grain — each with
+  its own ON/OFF, parameters and audio routing, like a TouchDesigner node chain. A
+  **Send to Visual Engine** toggle optionally feeds the camera into particles / noise /
+  liquid; off by default so the two systems stay fully independent.
 - **Intelligent randomization** — `Generate` rolls a new **seed** that deterministically
   drives palette, motion, speed, distortion, symmetry and physics. Values are pulled
   from curated palettes and centre-biased ranges so results stay *art-directed*, never

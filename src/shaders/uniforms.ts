@@ -74,17 +74,19 @@ export function buildUniforms(): Uniforms {
     uForce: { value: 1.2 }, // how strongly scenes are displaced by the field
 
     // ---- modular camera fx (set via applyCamFx) ----
+    uDsOn: { value: 0 }, uDsTouch: { value: 1 }, uDsBass: { value: 1 }, uDsJitter: { value: 1 },
     uHtOn: { value: 1 }, uHtSize: { value: 0.55 }, uHtAngle: { value: 0.4 }, uHtShape: { value: 0 }, uHtAudio: { value: 0.6 },
     uDmOn: { value: 0 }, uDmDensity: { value: 90 }, uDmGlow: { value: 0.6 }, uDmAudio: { value: 0.5 },
-    uDiOn: { value: 0 }, uDiAlgo: { value: 0 }, uDiScale: { value: 1 }, uDiThresh: { value: 0.5 }, uDiAudio: { value: 0.4 },
-    uEdOn: { value: 0 }, uEdStrength: { value: 4 }, uEdGlow: { value: 1 }, uEdInvert: { value: 0 }, uEdAudio: { value: 0.5 },
+    uDiOn: { value: 0 }, uDiAlgo: { value: 0 }, uDiScale: { value: 1 }, uDiThresh: { value: 0.5 }, uDiContrast: { value: 1 }, uDiNoise: { value: 0.1 }, uDiAudio: { value: 0.4 },
+    uEdOn: { value: 0 }, uEdStrength: { value: 4 }, uEdThick: { value: 1 }, uEdGlow: { value: 1 }, uEdInvert: { value: 0 }, uEdAudio: { value: 0.5 },
     uPoOn: { value: 0 }, uPoLevels: { value: 5 }, uPoAudio: { value: 0.4 },
     uThOn: { value: 0 }, uThValue: { value: 0.5 }, uThSoft: { value: 0.08 }, uThInvert: { value: 0 }, uThAudio: { value: 0.6 },
     uMoOn: { value: 0 }, uMoTint: { value: 0.5 }, uMoGamma: { value: 1 },
-    uPsOn: { value: 0 }, uPsAmount: { value: 0.4 }, uPsThresh: { value: 0.6 },
-    uChOn: { value: 1 }, uChAmount: { value: 0.3 }, uChAudio: { value: 0.7 },
-    uScOn: { value: 0 }, uScIntensity: { value: 0.4 }, uScCount: { value: 700 }, uScCrt: { value: 0 },
-    uBlOn: { value: 1 }, uBlAmount: { value: 0.5 }, uBlAudio: { value: 0.8 },
+    uPsOn: { value: 0 }, uPsAmount: { value: 0.4 }, uPsThresh: { value: 0.6 }, uPsDir: { value: 0 }, uPsSpeed: { value: 0 },
+    uChOn: { value: 0 }, uChAmount: { value: 0.3 }, uChAudio: { value: 0.7 },
+    uScOn: { value: 0 }, uScIntensity: { value: 0.4 }, uScSpacing: { value: 700 }, uScThick: { value: 0.5 },
+    uCrtOn: { value: 0 }, uCrtCurve: { value: 0.3 }, uCrtGlow: { value: 0.5 },
+    uBlOn: { value: 0 }, uBlAmount: { value: 0.5 }, uBlAudio: { value: 0.8 },
     uGrOn: { value: 0 }, uGrAmount: { value: 0.08 },
 
     // ---- particle morphing + field dynamics (written by ParticleScene) ----
@@ -144,7 +146,8 @@ export function applyParams(
   u.uAToGlow.value = audio.toGlow;
   u.uAToSpeed.value = audio.toSpeed;
 
-  u.uCamFeed.value = camera.enabled ? camera.feedToColor : 0;
+  // camera only bleeds into generative scenes when explicitly routed there
+  u.uCamFeed.value = camera.enabled && camera.sendToEngine ? camera.feedToColor : 0;
   u.uCamMirror.value = camera.mirror ? 1 : 0;
 }
 
@@ -156,16 +159,18 @@ const b = (v: boolean) => (v ? 1 : 0);
 
 /** Push the modular Camera FX config into uniforms. */
 export function applyCamFx(u: Uniforms, c: CamFx) {
+  u.uDsOn.value = b(c.distort.on); u.uDsTouch.value = c.distort.touch; u.uDsBass.value = c.distort.bass; u.uDsJitter.value = c.distort.jitter;
   u.uHtOn.value = b(c.halftone.on); u.uHtSize.value = c.halftone.size; u.uHtAngle.value = c.halftone.angle; u.uHtShape.value = c.halftone.shape; u.uHtAudio.value = c.halftone.audio;
   u.uDmOn.value = b(c.dotmatrix.on); u.uDmDensity.value = c.dotmatrix.density; u.uDmGlow.value = c.dotmatrix.glow; u.uDmAudio.value = c.dotmatrix.audio;
-  u.uDiOn.value = b(c.dither.on); u.uDiAlgo.value = c.dither.algo; u.uDiScale.value = c.dither.scale; u.uDiThresh.value = c.dither.threshold; u.uDiAudio.value = c.dither.audio;
-  u.uEdOn.value = b(c.edge.on); u.uEdStrength.value = c.edge.strength; u.uEdGlow.value = c.edge.glow; u.uEdInvert.value = b(c.edge.invert); u.uEdAudio.value = c.edge.audio;
+  u.uDiOn.value = b(c.dither.on); u.uDiAlgo.value = c.dither.algo; u.uDiScale.value = c.dither.scale; u.uDiThresh.value = c.dither.threshold; u.uDiContrast.value = c.dither.contrast; u.uDiNoise.value = c.dither.noise; u.uDiAudio.value = c.dither.audio;
+  u.uEdOn.value = b(c.edge.on); u.uEdStrength.value = c.edge.strength; u.uEdThick.value = c.edge.thickness; u.uEdGlow.value = c.edge.glow; u.uEdInvert.value = b(c.edge.invert); u.uEdAudio.value = c.edge.audio;
   u.uPoOn.value = b(c.posterize.on); u.uPoLevels.value = c.posterize.levels; u.uPoAudio.value = c.posterize.audio;
   u.uThOn.value = b(c.threshold.on); u.uThValue.value = c.threshold.value; u.uThSoft.value = c.threshold.soft; u.uThInvert.value = b(c.threshold.invert); u.uThAudio.value = c.threshold.audio;
   u.uMoOn.value = b(c.mono.on); u.uMoTint.value = c.mono.tint; u.uMoGamma.value = c.mono.gamma;
-  u.uPsOn.value = b(c.pixelsort.on); u.uPsAmount.value = c.pixelsort.amount; u.uPsThresh.value = c.pixelsort.threshold;
+  u.uPsOn.value = b(c.pixelsort.on); u.uPsAmount.value = c.pixelsort.amount; u.uPsThresh.value = c.pixelsort.threshold; u.uPsDir.value = c.pixelsort.direction; u.uPsSpeed.value = c.pixelsort.speed;
   u.uChOn.value = b(c.chroma.on); u.uChAmount.value = c.chroma.amount; u.uChAudio.value = c.chroma.audio;
-  u.uScOn.value = b(c.scan.on); u.uScIntensity.value = c.scan.intensity; u.uScCount.value = c.scan.count; u.uScCrt.value = b(c.scan.crt);
+  u.uScOn.value = b(c.scan.on); u.uScIntensity.value = c.scan.intensity; u.uScSpacing.value = c.scan.spacing; u.uScThick.value = c.scan.thickness;
+  u.uCrtOn.value = b(c.crt.on); u.uCrtCurve.value = c.crt.curvature; u.uCrtGlow.value = c.crt.glow;
   u.uBlOn.value = b(c.bloom.on); u.uBlAmount.value = c.bloom.amount; u.uBlAudio.value = c.bloom.audio;
   u.uGrOn.value = b(c.grain.on); u.uGrAmount.value = c.grain.amount;
 }
