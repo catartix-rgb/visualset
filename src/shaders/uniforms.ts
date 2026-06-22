@@ -58,6 +58,7 @@ export function buildUniforms(): Uniforms {
     uVignette: { value: 0.5 },
     uFlow: { value: 1 },
     uTrail: { value: 0.92 },
+    uCamFxMode: { value: 0 },
 
     uAToScale: { value: 0.6 },
     uAToDistort: { value: 0.8 },
@@ -65,6 +66,10 @@ export function buildUniforms(): Uniforms {
     uAToSpeed: { value: 0.5 },
 
     uFeedback: { value: null },
+
+    // ---- interaction field ----
+    uTouch: { value: DEFAULT_TEX },
+    uTouchActive: { value: 0 },
 
     // ---- particle morphing + field dynamics (written by ParticleScene) ----
     uMorph: { value: 0 },
@@ -116,6 +121,7 @@ export function applyParams(
   u.uVignette.value = p.vignette;
   u.uFlow.value = p.flow;
   u.uTrail.value = p.trail;
+  u.uCamFxMode.value = p.camfxMode ?? 0;
 
   u.uAToScale.value = audio.toScale;
   u.uAToDistort.value = audio.toDistortion;
@@ -155,4 +161,7 @@ export function applySignals(u: Uniforms, time: number) {
   );
   u.uHandCount.value = h.active ? h.count : 0;
   u.uHandEnergy.value = h.energy;
+
+  u.uTouch.value = signals.touchTexture ?? DEFAULT_TEX;
+  u.uTouchActive.value = signals.touchTexture ? 1 : 0;
 }

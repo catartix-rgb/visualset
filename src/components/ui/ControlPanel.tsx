@@ -3,6 +3,7 @@ import { useControls, folder } from "leva";
 import { useEffect } from "react";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
+import { CAMFX_MODES } from "@/lib/types";
 
 /**
  * Registers all Leva controls and binds them to the Zustand store. Rendered with a
@@ -20,9 +21,24 @@ export function ControlPanel() {
   const setCameraMap = useStore((s) => s.setCameraMap);
 
   const paletteOptions = PALETTES.map((x) => x.name);
+  const sceneId = useStore.getState().sceneId;
+  const camfxControl =
+    sceneId === "camerafx"
+      ? {
+          "camera mode": {
+            value: CAMFX_MODES[p.camfxMode ?? 0],
+            options: CAMFX_MODES as unknown as string[],
+            onChange: (name: string) => {
+              const idx = CAMFX_MODES.indexOf(name as (typeof CAMFX_MODES)[number]);
+              if (idx >= 0) setParam("camfxMode", idx);
+            },
+          },
+        }
+      : {};
 
   useControls({
     Look: folder({
+      ...camfxControl,
       palette: {
         value: p.paletteName,
         options: paletteOptions,
@@ -41,7 +57,8 @@ export function ControlPanel() {
       symmetry: { value: p.symmetry, min: 2, max: 16, step: 1, onChange: (v: number) => setParam("symmetry", v) },
       flow: { value: p.flow, min: 0, max: 3, onChange: (v: number) => setParam("flow", v) },
       trail: { value: p.trail, min: 0.7, max: 0.99, onChange: (v: number) => setParam("trail", v) },
-    }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any),
     Grade: folder(
       {
         glow: { value: p.glow, min: 0, max: 2, onChange: (v: number) => setParam("glow", v) },

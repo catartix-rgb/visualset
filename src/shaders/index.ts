@@ -7,6 +7,7 @@ import { KALEIDO_MAIN } from "./scenes/kaleido";
 import { LIQUID_MAIN } from "./scenes/liquid";
 import { GEOMETRIC_MAIN } from "./scenes/geometric";
 import { FEEDBACK_MAIN } from "./scenes/feedback";
+import { CAMERAFX_MAIN } from "./scenes/camerafx";
 import type { SceneId } from "@/lib/types";
 
 /** Fragment shaders for the fullscreen scenes (particles renders its own geometry). */
@@ -18,6 +19,7 @@ export const FRAGMENTS: Record<Exclude<SceneId, "particles">, string> = {
   liquid: buildFragment(LIQUID_MAIN),
   geometric: buildFragment(GEOMETRIC_MAIN),
   feedback: buildFragment(FEEDBACK_MAIN),
+  camerafx: buildFragment(CAMERAFX_MAIN),
 };
 
 export { FULLSCREEN_VERT };

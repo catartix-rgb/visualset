@@ -126,6 +126,13 @@ void main(){
   // explosion impulse on fast motion / beats
   ndc += normalize(ndc + 1e-4) * uExplosion * 0.25;
 
+  // interaction field: finger/pointer drags particles and shoves ripples
+  if(uTouchActive > 0.5){
+    vec3 tf = texture2D(uTouch, ndc * 0.5 + 0.5).rgb;
+    ndc += tf.rg * 0.08;
+    ndc += normalize(ndc + 1e-4) * tf.b * 0.05;
+  }
+
   gl_Position = vec4(ndc, 0.0, 1.0);
 
   vDepth = clamp(persp*0.5, 0.0, 1.5);

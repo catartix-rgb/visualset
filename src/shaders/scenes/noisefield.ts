@@ -1,39 +1,51 @@
-// Flowing noise/flow-field. Domain-warped curl noise advects a coordinate field,
-// colored through the palette ramp. Bass drives zoom, mids drive warp, beats pulse.
+// Noise Field — living digital smoke / procedural fluid. Uses two-level domain
+// warping (fbm of fbm) so the structure is large, soft and rolling rather than
+// high-frequency static. Multiple incommensurate time drifts keep it from looping;
+// audio swells and ignites it; the interaction field lets a finger smear the smoke.
 export const NOISEFIELD_MAIN = /* glsl */ `
 void main(){
   vec2 uv = vUv;
   vec2 p = (uv - 0.5) * vec2(uRes.x/uRes.y, 1.0);
+  p *= (uScale * 0.8 + 0.35);
 
-  float t  = uTime * uSpeed * (1.0 + uAToSpeed * uRms);
-  float sc = uScale * (1.0 + uAToScale * uBass * 0.8);
-  float warp = uDistort * (1.0 + uAToDistort * uMid) + uCamMotion * 1.5;
+  float t = uTime * uSpeed * (1.0 + uAToSpeed * uRms);
 
-  p *= sc;
+  // slow non-repeating drift + finger force
+  p += vec2(t * 0.03, sin(t * 0.117) * 0.4 + t * 0.011);
+  vec3 tch = touchAt(uv);
+  p += tch.rg * (0.4 + uFlow * 0.2);
 
-  // pointer + camera pull on the field
-  vec2 pull = (uPointer - 0.5) * 2.0;
-  p += pull * uPointerDown * 0.6;
+  float warp = 1.4 + uDistort * 1.2 + uMid * 1.0 + uCamMotion * 1.5;
 
-  vec2 q = p;
-  for(int i=0;i<3;i++){
-    vec2 f = curl(q*1.3 + t*0.15);
-    q += f * warp * 0.35;
-  }
+  // ---- two-level domain warp (rolling smoke) ----
+  vec2 q = vec2(
+    fbm(p + t * 0.10, 4),
+    fbm(p + vec2(5.2, 1.3) - t * 0.08, 4)
+  );
+  vec2 r = vec2(
+    fbm(p + warp * q + vec2(1.7, 9.2) + t * 0.06, 4),
+    fbm(p + warp * q + vec2(8.3, 2.8) - t * 0.05, 4)
+  );
+  float f = fbm(p + warp * r + t * 0.04, 5);
 
-  float n = fbm(q + t*0.1, int(uComplexity));
-  float flow = length(curl(q + t*0.2));
+  // density + colour mapped smoothly from the warped field
+  float dens = clamp(0.5 + 0.5 * f + uBass * 0.25 + tch.b * 0.5, 0.0, 1.4);
+  float detail = length(r);
+  float tone = clamp(0.25 + 0.5 * dens + 0.25 * detail + uHue, 0.0, 1.0);
 
-  float tt = 0.5 + 0.5*sin(n*3.0 + flow*2.0 + t*0.3 + uBeat*1.5);
-  vec3 col = ramp(tt);
-  col = mix(uBg, col, smoothstep(0.0,0.6,abs(n))+0.25);
-  col += ramp(fract(tt+0.3)) * flow * 0.4 * uGlow;
+  vec3 col = ramp(tone);
+  col = mix(uBg, col, smoothstep(0.05, 0.85, dens));
 
-  // beat flash
-  col += uBeat * ramp(0.8) * 0.25;
+  // glowing filaments where the warp folds most (coherent, soft)
+  float fil = smoothstep(0.55, 1.2, detail);
+  col += ramp(0.92) * fil * uGlow * (0.6 + uTreble * 1.3);
+  // touch ripple bloom + beat + bass swell
+  col += ramp(0.82) * tch.b * (0.5 + uGlow);
+  col += uBeat * ramp(0.85) * 0.18;
+  col *= 1.0 + uBass * 0.3;
 
   col = applyCamera(col, uv);
   col = grade(col, uv);
-  gl_FragColor = vec4(max(col,0.0), 1.0);
+  gl_FragColor = vec4(max(col, 0.0), 1.0);
 }
 `;

@@ -76,7 +76,19 @@ export const useStore = create<Store>((set, get) => ({
   toast: null,
 
   setScene: (id) =>
-    set((s) => ({ sceneId: id, params: generateParams(s.seed, id) })),
+    set((s) => {
+      const next: Partial<Store> = {
+        sceneId: id,
+        // keep the camfx mode when switching INTO camerafx, otherwise reroll params
+        params: { ...generateParams(s.seed, id), camfxMode: s.params.camfxMode },
+      };
+      // Camera FX needs the webcam — enable it implicitly for convenience
+      if (id === "camerafx" && !s.cameraOn) {
+        next.cameraOn = true;
+        next.camera = { ...s.camera, enabled: true };
+      }
+      return next;
+    }),
 
   generate: () => {
     const s = get();

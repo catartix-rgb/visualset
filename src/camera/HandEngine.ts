@@ -95,9 +95,15 @@ export class HandEngine {
     prev[0] = ux;
     prev[1] = uy;
 
+    // index fingertip (landmark 8) — the "stylus" for touching the visuals
+    const tx = 1 - lm[8].x;
+    const ty = 1 - lm[8].y;
+
     out.present = true;
     out.x = smooth(out.x, ux, 0.5);
     out.y = smooth(out.y, uy, 0.5);
+    out.tipX = smooth(out.tipX, tx, 0.55);
+    out.tipY = smooth(out.tipY, ty, 0.55);
     out.open = smooth(out.open, open, 0.4);
     out.pinch = smooth(out.pinch, pinch, 0.4);
     out.speed = smooth(out.speed, sp, 0.4);

@@ -14,8 +14,16 @@ GPU in the browser).
 
 ## ✨ Features
 
-- **8 modular visual engines** — Noise Field, Nebula, Raymarch, Kaleidoscope, Liquid
-  Metal, Geometric, Feedback/Trails/Glitch, and a 120k-point GPU Particle Flow field.
+- **9 modular visual engines** — living-smoke Noise Field, Nebula, Raymarch,
+  Kaleidoscope, fluid Liquid Metal (physical audio-driven surface), Geometric,
+  Feedback/Trails/Glitch, an evolutionary GPU Particle Flow that morphs between
+  cloud/sphere/tunnel/organism/galaxy/lattice, and **Camera FX** (halftone, dot
+  matrix, ASCII, edge, posterize, threshold, mono) that turns the webcam into
+  audio-reactive material.
+- **Interaction field ("digital pond")** — pointer and index-fingertip input deposit
+  force + ripple energy into a persistent GPU field that diffuses and dissipates over
+  a few seconds; every scene samples it, so you can drag particles, smear smoke and
+  raise liquid ripples by touch.
 - **Intelligent randomization** — `Generate` rolls a new **seed** that deterministically
   drives palette, motion, speed, distortion, symmetry and physics. Values are pulled
   from curated palettes and centre-biased ranges so results stay *art-directed*, never

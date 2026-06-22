@@ -1,6 +1,7 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
 import { SceneRouter } from "./scenes/SceneRouter";
+import { TouchField } from "./scenes/TouchField";
 
 /**
  * The WebGL surface. preserveDrawingBuffer lets us grab PNG/JPG snapshots;
@@ -21,6 +22,7 @@ export function VisualCanvas() {
       frameloop="always"
     >
       <color attach="background" args={["#05070a"]} />
+      <TouchField />
       <SceneRouter />
     </Canvas>
   );

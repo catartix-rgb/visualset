@@ -59,6 +59,10 @@ uniform float uAToSpeed;
 
 // feedback (previous frame), used by trails scene
 uniform sampler2D uFeedback;
+
+// persistent interaction field: rg = force vector, b = ripple energy
+uniform sampler2D uTouch;
+uniform float uTouchActive;
 `;
 
 export const COMMON_LIB = /* glsl */ `
@@ -175,6 +179,12 @@ vec3 applyCamera(vec3 col, vec2 uv){
   vec3 cam=texture2D(uCam, mirrorUv(uv)).rgb;
   vec3 tinted=ramp(dot(cam,vec3(0.333)));
   return mix(col, mix(cam,tinted,0.5), uCamFeed);
+}
+
+// sample the interaction field at a uv (rg force, b ripple energy)
+vec3 touchAt(vec2 uv){
+  if(uTouchActive < 0.5) return vec3(0.0);
+  return texture2D(uTouch, uv).rgb;
 }
 
 // kaleidoscope fold

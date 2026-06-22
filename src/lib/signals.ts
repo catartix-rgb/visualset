@@ -6,8 +6,10 @@ import type { Texture } from "three";
 
 export interface Hand {
   present: boolean;
-  x: number; // uv 0..1
+  x: number; // palm center, uv 0..1
   y: number; // uv 0..1 (y up)
+  tipX: number; // index fingertip, uv 0..1
+  tipY: number;
   open: number; // 0 = fist, 1 = open palm
   speed: number; // uv/sec magnitude
   pinch: number; // thumb-index distance, normalized (0 = pinched)
@@ -27,7 +29,7 @@ export interface HandSignals {
 }
 
 function emptyHand(): Hand {
-  return { present: false, x: 0.5, y: 0.5, open: 0.5, speed: 0, pinch: 1 };
+  return { present: false, x: 0.5, y: 0.5, tipX: 0.5, tipY: 0.5, open: 0.5, speed: 0, pinch: 1 };
 }
 
 export interface Signals {
@@ -56,6 +58,10 @@ export interface Signals {
 
   // Hand tracking (MediaPipe). Positions in uv space 0..1, y up.
   hands: HandSignals;
+
+  // Persistent interaction field (RG = force vector, B = ripple energy), updated
+  // by TouchField from pointer + fingertips. Scenes sample it to be deformable.
+  touchTexture: Texture | null;
 
   // Performance
   fps: number;
@@ -91,6 +97,7 @@ export const signals: Signals = {
     swirl: 0,
     energy: 0,
   },
+  touchTexture: null,
   fps: 60,
   quality: 1,
 };

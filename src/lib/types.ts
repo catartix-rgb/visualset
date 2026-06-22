@@ -8,7 +8,8 @@ export type SceneId =
   | "liquid"
   | "geometric"
   | "feedback"
-  | "particles";
+  | "particles"
+  | "camerafx";
 
 /** Generic visual parameters. Every scene reads the subset it needs as uniforms. */
 export interface VisualParams {
@@ -29,6 +30,7 @@ export interface VisualParams {
   vignette: number;
   flow: number; // flow-field strength (particles / fields)
   trail: number; // feedback persistence 0..1
+  camfxMode: number; // Camera FX processing mode (0..6)
 }
 
 /** How strongly each audio band drives motion/visuals. */
@@ -81,4 +83,15 @@ export const SCENES: SceneMeta[] = [
   { id: "geometric", name: "Geometric", tags: ["shapes", "reactive"] },
   { id: "feedback", name: "Feedback / Trails", tags: ["glitch", "feedback", "trails"] },
   { id: "particles", name: "Particle Flow", tags: ["particles", "flowfield", "fluid"] },
+  { id: "camerafx", name: "Camera FX", tags: ["camera", "halftone", "ascii", "edge"] },
 ];
+
+export const CAMFX_MODES = [
+  "Halftone",
+  "Dot Matrix",
+  "ASCII",
+  "Edge",
+  "Posterize",
+  "Threshold",
+  "Mono",
+] as const;

@@ -41,6 +41,7 @@ export function generateParams(seed: string, sceneId: SceneId): VisualParams {
     vignette: rng.curve(0.25, 0.7, 2),
     flow: bias.flow ?? rng.curve(0.4, 1.6, 2),
     trail: bias.trail ?? rng.curve(0.8, 0.97, 2),
+    camfxMode: rng.int(0, 6),
   };
   return params;
 }
