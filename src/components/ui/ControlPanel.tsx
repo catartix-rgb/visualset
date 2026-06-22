@@ -26,15 +26,25 @@ export function ControlPanel() {
 
   const paletteOptions = PALETTES.map((x) => x.name);
 
-  // helpers to bind a camfx stage parameter
-  const num = (stage: CamFxStage, key: string, opts: object) => ({
+  // Bind a camfx parameter. Leva needs every leaf key globally unique, so the schema
+  // key is prefixed (e.g. htSize) while `label` keeps a clean display name. On/off and
+  // ordering live in the FX Chain panel, not here.
+  const cfp = (stage: CamFxStage, key: string, label: string, opts: object = {}) => ({
     value: (fx[stage] as unknown as Record<string, number>)[key],
+    label,
     ...opts,
     onChange: (v: number) => setCamFx(stage, { [key]: v } as never),
   });
-  const bool = (stage: CamFxStage, key: string) => ({
+  const cfb = (stage: CamFxStage, key: string, label: string) => ({
     value: (fx[stage] as unknown as Record<string, boolean>)[key],
+    label,
     onChange: (v: boolean) => setCamFx(stage, { [key]: v } as never),
+  });
+  const sel = (stage: CamFxStage, key: string, label: string, opts: readonly string[]) => ({
+    value: opts[(fx[stage] as unknown as Record<string, number>)[key]],
+    label,
+    options: opts as unknown as string[],
+    onChange: (n: string) => setCamFx(stage, { [key]: opts.indexOf(n) } as never),
   });
 
   const camFxFolder =
@@ -44,143 +54,114 @@ export function ControlPanel() {
             {
               Distort: folder(
                 {
-                  enabled: bool("distort", "on"),
-                  touch: num("distort", "touch", { min: 0, max: 3 }),
-                  bass: num("distort", "bass", { min: 0, max: 3 }),
-                  jitter: num("distort", "jitter", { min: 0, max: 3 }),
+                  dsTouch: cfp("distort", "touch", "touch", { min: 0, max: 3 }),
+                  dsBass: cfp("distort", "bass", "bass", { min: 0, max: 3 }),
+                  dsJitter: cfp("distort", "jitter", "jitter", { min: 0, max: 3 }),
                 },
                 { collapsed: true }
               ),
               Halftone: folder(
                 {
-                  enabled: bool("halftone", "on"),
-                  size: num("halftone", "size", { min: 0.05, max: 1 }),
-                  angle: num("halftone", "angle", { min: 0, max: 3.14 }),
-                  shape: {
-                    value: HALFTONE_SHAPES[fx.halftone.shape],
-                    options: HALFTONE_SHAPES as unknown as string[],
-                    onChange: (n: string) =>
-                      setCamFx("halftone", { shape: HALFTONE_SHAPES.indexOf(n as never) }),
-                  },
-                  audio: num("halftone", "audio", { min: 0, max: 2 }),
+                  htSize: cfp("halftone", "size", "size", { min: 0.05, max: 1 }),
+                  htAngle: cfp("halftone", "angle", "angle", { min: 0, max: 3.14 }),
+                  htShape: sel("halftone", "shape", "shape", HALFTONE_SHAPES),
+                  htAudio: cfp("halftone", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               "Dot Matrix": folder(
                 {
-                  enabled: bool("dotmatrix", "on"),
-                  density: num("dotmatrix", "density", { min: 20, max: 240, step: 1 }),
-                  glow: num("dotmatrix", "glow", { min: 0, max: 2 }),
-                  audio: num("dotmatrix", "audio", { min: 0, max: 2 }),
+                  dmDensity: cfp("dotmatrix", "density", "density", { min: 20, max: 240, step: 1 }),
+                  dmGlow: cfp("dotmatrix", "glow", "glow", { min: 0, max: 2 }),
+                  dmAudio: cfp("dotmatrix", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               Dither: folder(
                 {
-                  enabled: bool("dither", "on"),
-                  algorithm: {
-                    value: DITHER_ALGOS[fx.dither.algo],
-                    options: DITHER_ALGOS as unknown as string[],
-                    onChange: (n: string) =>
-                      setCamFx("dither", { algo: DITHER_ALGOS.indexOf(n as never) }),
-                  },
-                  scale: num("dither", "scale", { min: 0.5, max: 4 }),
-                  threshold: num("dither", "threshold", { min: 0, max: 1 }),
-                  contrast: num("dither", "contrast", { min: 0.2, max: 3 }),
-                  noise: num("dither", "noise", { min: 0, max: 1 }),
-                  audio: num("dither", "audio", { min: 0, max: 2 }),
+                  diAlgo: sel("dither", "algo", "algorithm", DITHER_ALGOS),
+                  diScale: cfp("dither", "scale", "scale", { min: 0.5, max: 4 }),
+                  diThresh: cfp("dither", "threshold", "threshold", { min: 0, max: 1 }),
+                  diContrast: cfp("dither", "contrast", "contrast", { min: 0.2, max: 3 }),
+                  diNoise: cfp("dither", "noise", "noise", { min: 0, max: 1 }),
+                  diAudio: cfp("dither", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
-              Edge: folder(
+              "Edge Detection": folder(
                 {
-                  enabled: bool("edge", "on"),
-                  strength: num("edge", "strength", { min: 0, max: 12 }),
-                  thickness: num("edge", "thickness", { min: 0, max: 4 }),
-                  glow: num("edge", "glow", { min: 0, max: 3 }),
-                  invert: bool("edge", "invert"),
-                  audio: num("edge", "audio", { min: 0, max: 2 }),
+                  edStrength: cfp("edge", "strength", "strength", { min: 0, max: 12 }),
+                  edThick: cfp("edge", "thickness", "thickness", { min: 0, max: 4 }),
+                  edGlow: cfp("edge", "glow", "glow", { min: 0, max: 3 }),
+                  edInvert: cfb("edge", "invert", "invert"),
+                  edAudio: cfp("edge", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               Posterize: folder(
                 {
-                  enabled: bool("posterize", "on"),
-                  levels: num("posterize", "levels", { min: 2, max: 12, step: 1 }),
-                  audio: num("posterize", "audio", { min: 0, max: 2 }),
+                  poLevels: cfp("posterize", "levels", "levels", { min: 2, max: 12, step: 1 }),
+                  poAudio: cfp("posterize", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               Threshold: folder(
                 {
-                  enabled: bool("threshold", "on"),
-                  value: num("threshold", "value", { min: 0, max: 1 }),
-                  soft: num("threshold", "soft", { min: 0, max: 0.3 }),
-                  invert: bool("threshold", "invert"),
-                  audio: num("threshold", "audio", { min: 0, max: 2 }),
+                  thValue: cfp("threshold", "value", "value", { min: 0, max: 1 }),
+                  thSoft: cfp("threshold", "soft", "soft", { min: 0, max: 0.3 }),
+                  thInvert: cfb("threshold", "invert", "invert"),
+                  thAudio: cfp("threshold", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               Monochrome: folder(
                 {
-                  enabled: bool("mono", "on"),
-                  tint: num("mono", "tint", { min: 0, max: 1 }),
-                  gamma: num("mono", "gamma", { min: 0.3, max: 2.5 }),
+                  moTint: cfp("mono", "tint", "tint", { min: 0, max: 1 }),
+                  moGamma: cfp("mono", "gamma", "gamma", { min: 0.3, max: 2.5 }),
                 },
                 { collapsed: true }
               ),
               "Pixel Sort": folder(
                 {
-                  enabled: bool("pixelsort", "on"),
-                  direction: {
-                    value: SORT_DIRECTIONS[fx.pixelsort.direction],
-                    options: SORT_DIRECTIONS as unknown as string[],
-                    onChange: (n: string) =>
-                      setCamFx("pixelsort", { direction: SORT_DIRECTIONS.indexOf(n as never) }),
-                  },
-                  amount: num("pixelsort", "amount", { min: 0, max: 1 }),
-                  threshold: num("pixelsort", "threshold", { min: 0, max: 1 }),
-                  speed: num("pixelsort", "speed", { min: 0, max: 2 }),
+                  psDir: sel("pixelsort", "direction", "direction", SORT_DIRECTIONS),
+                  psAmount: cfp("pixelsort", "amount", "amount", { min: 0, max: 1 }),
+                  psThresh: cfp("pixelsort", "threshold", "threshold", { min: 0, max: 1 }),
+                  psSpeed: cfp("pixelsort", "speed", "speed", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               "Chromatic Aberration": folder(
                 {
-                  enabled: bool("chroma", "on"),
-                  amount: num("chroma", "amount", { min: 0, max: 1 }),
-                  audio: num("chroma", "audio", { min: 0, max: 2 }),
+                  chAmount: cfp("chroma", "amount", "amount", { min: 0, max: 1 }),
+                  chAudio: cfp("chroma", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               Scanlines: folder(
                 {
-                  enabled: bool("scan", "on"),
-                  intensity: num("scan", "intensity", { min: 0, max: 1 }),
-                  spacing: num("scan", "spacing", { min: 100, max: 1400, step: 10 }),
-                  thickness: num("scan", "thickness", { min: 0, max: 1 }),
+                  scIntensity: cfp("scan", "intensity", "intensity", { min: 0, max: 1 }),
+                  scSpacing: cfp("scan", "spacing", "spacing", { min: 100, max: 1400, step: 10 }),
+                  scThick: cfp("scan", "thickness", "thickness", { min: 0, max: 1 }),
                 },
                 { collapsed: true }
               ),
               CRT: folder(
                 {
-                  enabled: bool("crt", "on"),
-                  curvature: num("crt", "curvature", { min: 0, max: 1 }),
-                  glow: num("crt", "glow", { min: 0, max: 2 }),
+                  crCurve: cfp("crt", "curvature", "curvature", { min: 0, max: 1 }),
+                  crGlow: cfp("crt", "glow", "glow", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               Bloom: folder(
                 {
-                  enabled: bool("bloom", "on"),
-                  amount: num("bloom", "amount", { min: 0, max: 2 }),
-                  audio: num("bloom", "audio", { min: 0, max: 2 }),
+                  blAmount: cfp("bloom", "amount", "amount", { min: 0, max: 2 }),
+                  blAudio: cfp("bloom", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),
               "Film Grain": folder(
                 {
-                  enabled: bool("grain", "on"),
-                  amount: num("grain", "amount", { min: 0, max: 0.3 }),
+                  grAmount: cfp("grain", "amount", "amount", { min: 0, max: 0.3 }),
                 },
                 { collapsed: true }
               ),

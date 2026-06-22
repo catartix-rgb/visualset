@@ -72,6 +72,8 @@ export function buildUniforms(): Uniforms {
     uTouch: { value: DEFAULT_TEX },
     uTouchActive: { value: 0 },
     uForce: { value: 1.2 }, // how strongly scenes are displaced by the field
+    uHandExpand: { value: 0 },
+    uTex: { value: DEFAULT_TEX }, // generic input texture for the Camera FX pass chain
 
     // ---- modular camera fx (set via applyCamFx) ----
     uDsOn: { value: 0 }, uDsTouch: { value: 1 }, uDsBass: { value: 1 }, uDsJitter: { value: 1 },
@@ -204,6 +206,7 @@ export function applySignals(u: Uniforms, time: number) {
   );
   u.uHandCount.value = h.active ? h.count : 0;
   u.uHandEnergy.value = h.energy;
+  u.uHandExpand.value = h.active ? h.expansion : 0;
 
   u.uTouch.value = signals.touchTexture ?? DEFAULT_TEX;
   u.uTouchActive.value = signals.touchTexture ? 1 : 0;

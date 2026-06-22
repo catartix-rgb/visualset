@@ -26,6 +26,7 @@ export interface HandSignals {
   axisVel: number; // angular velocity of that line -> rotation gestures
   swirl: number; // single-hand angular velocity around screen center -> vortex
   energy: number; // overall hand motion energy 0..1 (for global reactivity)
+  expansion: number; // -1 (compress/fist/hands together) .. +1 (expand/open/apart)
 }
 
 function emptyHand(): Hand {
@@ -96,6 +97,7 @@ export const signals: Signals = {
     axisVel: 0,
     swirl: 0,
     energy: 0,
+    expansion: 0,
   },
   touchTexture: null,
   fps: 60,

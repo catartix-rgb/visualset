@@ -16,6 +16,7 @@ import {
 } from "@/generators/generate";
 import {
   defaultCamFx,
+  defaultCamfxOrder,
   defaultInteraction,
   type CamFx,
   type CamFxStage,
@@ -39,8 +40,10 @@ interface UIState {
 interface Store extends VisualState, UIState {
   interaction: InteractionParams;
   camfx: CamFx;
+  camfxOrder: CamFxStage[];
   setInteraction: (p: Partial<InteractionParams>) => void;
   setCamFx: <S extends CamFxStage>(stage: S, patch: Partial<CamFx[S]>) => void;
+  setCamfxOrder: (order: CamFxStage[]) => void;
 
   // ---- visual mutations ----
   setScene: (id: SceneId) => void;
@@ -77,6 +80,7 @@ export const useStore = create<Store>((set, get) => ({
   camera: defaultCameraMapping(),
   interaction: defaultInteraction(),
   camfx: defaultCamFx(),
+  camfxOrder: defaultCamfxOrder(),
 
   // ui state
   panelVisible: true,
@@ -125,6 +129,7 @@ export const useStore = create<Store>((set, get) => ({
   setInteraction: (p) => set((s) => ({ interaction: { ...s.interaction, ...p } })),
   setCamFx: (stage, patch) =>
     set((s) => ({ camfx: { ...s.camfx, [stage]: { ...s.camfx[stage], ...patch } } })),
+  setCamfxOrder: (order) => set({ camfxOrder: order }),
 
   loadState: (st) =>
     set({

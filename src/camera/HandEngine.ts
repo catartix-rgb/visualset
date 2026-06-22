@@ -69,7 +69,7 @@ export class HandEngine {
     h.count = 0;
     h.h0.present = false;
     h.h1.present = false;
-    h.spread = h.spreadVel = h.axisVel = h.swirl = h.energy = 0;
+    h.spread = h.spreadVel = h.axisVel = h.swirl = h.energy = h.expansion = 0;
   }
 
   private analyseHand(lm: LM[], out: Hand, prev: number[], dt: number): void {
@@ -165,6 +165,13 @@ export class HandEngine {
 
         const e = (h.h0.present ? h.h0.speed : 0) + (h.h1.present ? h.h1.speed : 0);
         h.energy = smooth(h.energy, Math.min(1, e * 0.6), 0.3);
+
+        // unified expansion gesture: two hands -> distance, one hand -> openness.
+        // -1 = compress/fist/together, +1 = expand/open/apart. Drives every scene.
+        let exp = 0;
+        if (hands.length >= 2) exp = Math.max(-1, Math.min(1, (h.spread - 0.35) * 2.6));
+        else if (hands.length === 1 && h.h0.present) exp = (h.h0.open - 0.5) * 2;
+        h.expansion = smooth(h.expansion, hands.length >= 1 ? exp : 0, 0.18);
       }
     }
     this.raf = requestAnimationFrame(this.loop);

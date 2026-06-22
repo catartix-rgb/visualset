@@ -8,6 +8,7 @@ float surfH(vec2 uv){
   vec2 p = (uv - 0.5);
   p.x *= uRes.x / uRes.y;
   p *= (uScale * 2.0 + 1.0);
+  p *= (1.0 - uHandExpand * 0.3); // hand gesture expands / compresses the metal body
 
   float t = uTime * uSpeed * (1.0 + uAToSpeed * uRms);
 

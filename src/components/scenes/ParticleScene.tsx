@@ -121,12 +121,10 @@ export function ParticleScene() {
     s.rotY += dt * (0.07 + h.axisVel * 0.6);
     s.rotX += dt * 0.025;
 
-    // scale: hands spreading expands, coming together compresses
-    let targetScale = 1;
-    if (h.active && h.count >= 2) {
-      targetScale = THREE.MathUtils.clamp(0.55 + h.spread * 1.9, 0.5, 2.3);
-    }
-    s.scale += (targetScale - s.scale) * 0.06 + h.spreadVel * dt * 1.5;
+    // scale: open palm / hands apart expands & separates, fist / together compresses.
+    // Uses the unified expansion gesture so a single open hand works too.
+    const targetScale = h.active ? THREE.MathUtils.clamp(1 + h.expansion * 0.95, 0.45, 2.4) : 1;
+    s.scale += (targetScale - s.scale) * 0.08 + h.spreadVel * dt * 1.5;
     s.scale = THREE.MathUtils.clamp(s.scale, 0.4, 2.6);
 
     // vortex: single-hand circular motion + a touch of treble

@@ -8,6 +8,7 @@ import { Meters } from "./ui/Meters";
 import { ControlPanel } from "./ui/ControlPanel";
 import { HelpOverlay } from "./ui/HelpOverlay";
 import { PresetLibrary } from "./ui/PresetLibrary";
+import { CameraFXChain } from "./ui/CameraFXChain";
 import { useStore } from "@/store/useStore";
 import { useAudio } from "@/audio/useAudio";
 import { useWebcam } from "@/camera/useWebcam";
@@ -160,6 +161,7 @@ export default function App() {
         <>
           <TopBar libraryOpen={library} onToggleLibrary={() => setLibrary((v) => !v)} />
           <Meters />
+          {sceneId === "camerafx" && panelVisible && <CameraFXChain />}
           <PresetLibrary open={library} onClose={() => setLibrary(false)} />
           <button
             className="btn pointer-events-auto absolute right-3 top-3 z-40 h-7 w-7 justify-center border border-[var(--hair)] !px-0"

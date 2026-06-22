@@ -27,13 +27,19 @@ GPU in the browser).
   liquid waves and spin vortices by touch — with editable Force, Radius, Persistence,
   Turbulence, Fluidity and Elasticity.
 - **Independent camera pipeline** — the camera is its own module, decoupled from the
-  visual engine. **Raw Camera** shows the clean image; **Camera FX** is a stackable
-  image-processing chain: Distort (optional, off by default), Halftone, Dot Matrix,
+  visual engine. **Raw Camera** shows the clean image; **Camera FX** is a true
+  multi-pass, **reorderable** chain (drag & drop): Distort, Halftone, Dot Matrix,
   Dither (Bayer/Ordered/Atkinson/Random), Edge, Posterize, Threshold, Monochrome,
-  Pixel Sort, Chromatic Aberration, Scanlines, CRT, Bloom and Film Grain — each with
-  its own ON/OFF, parameters and audio routing, like a TouchDesigner node chain. A
-  **Send to Visual Engine** toggle optionally feeds the camera into particles / noise /
-  liquid; off by default so the two systems stay fully independent.
+  Pixel Sort, Chromatic Aberration, Scanlines, CRT, Bloom and Film Grain. Every effect
+  is an independent module with its own ON/OFF, parameters and audio routing, and order
+  matters (Halftone→Dither ≠ Dither→Halftone). Nothing is on by default — an empty chain
+  is just Raw Camera. A **Send to Visual Engine** toggle optionally feeds the camera
+  into the generative scenes; off by default so the two systems stay fully independent.
+- **Hand-gesture sculpting** — MediaPipe hand tracking drives a continuous expansion
+  signal: open palm / hands apart expands and separates a scene, fist / hands together
+  compresses and densifies it. It's progressive (10%…100% open) and applies across
+  Particle Flow, Noise Field, Liquid Metal, Raymarch and the Camera FX distortion —
+  like modelling a living digital substance in the air.
 - **Intelligent randomization** — `Generate` rolls a new **seed** that deterministically
   drives palette, motion, speed, distortion, symmetry and physics. Values are pulled
   from curated palettes and centre-biased ranges so results stay *art-directed*, never

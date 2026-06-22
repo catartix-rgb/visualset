@@ -22,8 +22,9 @@ void main(){
 
   float t = uTime * uSpeed * (1.0 + uAToSpeed*uRms);
 
-  vec3 ro = vec3(0.0, 0.0, -3.2 + uBass*0.6);
-  vec3 rd = normalize(vec3(p * (uScale*0.8 + 0.4), 1.5));
+  // hand gesture pulls the camera back (expand) or pushes in (compress)
+  vec3 ro = vec3(0.0, 0.0, -3.2 + uBass*0.6 - uHandExpand*1.2);
+  vec3 rd = normalize(vec3(p * (uScale*0.8 + 0.4) * (1.0 - uHandExpand*0.25), 1.5));
   rd.xy += (uPointer-0.5)*0.5*uPointerDown;
 
   float dist = 0.0;

@@ -50,10 +50,11 @@ export const DITHER_ALGOS = ["Bayer", "Ordered", "Atkinson", "Random"] as const;
 export const HALFTONE_SHAPES = ["Circle", "Square", "Line"] as const;
 export const SORT_DIRECTIONS = ["Up", "Down", "Left", "Right"] as const;
 
+// Nothing is enabled by default — Camera FX with no stages on == Raw Camera.
 export function defaultCamFx(): CamFx {
   return {
     distort: { on: false, touch: 1, bass: 1, jitter: 1 },
-    halftone: { on: true, size: 0.55, angle: 0.4, shape: 0, audio: 0.6 },
+    halftone: { on: false, size: 0.55, angle: 0.4, shape: 0, audio: 0.6 },
     dotmatrix: { on: false, density: 90, glow: 0.6, audio: 0.5 },
     dither: { on: false, algo: 0, scale: 1, threshold: 0.5, contrast: 1, noise: 0.1, audio: 0.4 },
     edge: { on: false, strength: 4, thickness: 1, glow: 1, invert: false, audio: 0.5 },
@@ -67,4 +68,31 @@ export function defaultCamFx(): CamFx {
     bloom: { on: false, amount: 0.5, audio: 0.8 },
     grain: { on: false, amount: 0.08 },
   };
+}
+
+// Default processing order for the modular chain (user-reorderable via drag & drop).
+export const CAMFX_STAGES: CamFxStage[] = [
+  "distort", "halftone", "dotmatrix", "dither", "edge", "posterize",
+  "threshold", "mono", "pixelsort", "chroma", "scan", "crt", "bloom", "grain",
+];
+
+export const CAMFX_LABELS: Record<CamFxStage, string> = {
+  distort: "Distort",
+  halftone: "Halftone",
+  dotmatrix: "Dot Matrix",
+  dither: "Dither",
+  edge: "Edge Detection",
+  posterize: "Posterize",
+  threshold: "Threshold",
+  mono: "Monochrome",
+  pixelsort: "Pixel Sort",
+  chroma: "Chromatic Aberration",
+  scan: "Scanlines",
+  crt: "CRT",
+  bloom: "Bloom",
+  grain: "Film Grain",
+};
+
+export function defaultCamfxOrder(): CamFxStage[] {
+  return [...CAMFX_STAGES];
 }

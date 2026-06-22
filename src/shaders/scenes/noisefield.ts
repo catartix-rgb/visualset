@@ -7,6 +7,8 @@ void main(){
   vec2 uv = vUv;
   vec2 p = (uv - 0.5) * vec2(uRes.x/uRes.y, 1.0);
   p *= (uScale * 0.8 + 0.35);
+  // hand gesture: open palm / hands apart expands the field, fist compresses it
+  p *= (1.0 - uHandExpand * 0.35);
 
   float t = uTime * uSpeed * (1.0 + uAToSpeed * uRms);
 
@@ -35,6 +37,7 @@ void main(){
   float dens = clamp(0.62 + 0.6 * f + uBass * 0.3, 0.0, 1.7);
   dens -= smoothstep(0.3, 1.4, fmag) * 0.7;   // tunnels only on a strong push
   dens += tch.b * uForce * 0.6;               // energy waves
+  dens -= uHandExpand * 0.3;                  // fist densifies, open palm thins out
   float detail = length(r);
   float tone = clamp(0.25 + 0.45 * dens + 0.3 * detail + uHue, 0.0, 1.0);
 
