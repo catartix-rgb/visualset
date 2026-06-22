@@ -5,11 +5,11 @@ const KEYS: [string, string][] = [
   ["Space", "Generate new visual"],
   ["1 – 8", "Switch scene"],
   ["F", "Freeze / resume"],
-  ["H", "Show / hide control panel"],
-  ["P", "Performance (fullscreen, no UI)"],
-  ["Esc", "Exit performance mode"],
-  ["R", "Start / stop video recording"],
-  ["S", "Save PNG snapshot"],
+  ["H", "Show / hide controls"],
+  ["P", "Performance mode"],
+  ["Esc", "Exit performance"],
+  ["R", "Record video"],
+  ["S", "Save PNG"],
   ["M", "Toggle microphone"],
   ["C", "Toggle webcam"],
   ["?", "Toggle this help"],
@@ -24,33 +24,32 @@ export function HelpOverlay({ open, onClose }: { open: boolean; onClose: () => v
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md"
         >
           <motion.div
-            initial={{ scale: 0.95, y: 10 }}
+            initial={{ scale: 0.98, y: 8 }}
             animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.95, y: 10 }}
+            exit={{ scale: 0.98, y: 8 }}
             onClick={(e) => e.stopPropagation()}
-            className="glass w-[420px] max-w-[90vw] rounded-2xl p-6"
+            className="panel w-[440px] max-w-[90vw] p-7"
           >
-            <h2 className="mb-1 text-lg font-bold tracking-[0.3em] text-accent">
-              VISUAL<span className="text-accent2">SET</span>
-            </h2>
-            <p className="mb-4 text-xs leading-relaxed text-white/60">
-              A generative audio-visual instrument. Feed it sound or your camera,
-              hit Generate, and perform. Everything is reproducible from a seed.
+            <div className="mb-1 text-[13px] font-semibold tracking-[0.28em]">VISUALSET</div>
+            <p className="mb-6 max-w-[36ch] text-[12px] leading-relaxed text-[var(--text-dim)]">
+              A generative audio-visual instrument. Feed it sound, your camera or your
+              hands, then sculpt the result in real time. Every look is reproducible
+              from a seed.
             </p>
-            <div className="grid grid-cols-1 gap-1.5">
+            <div className="grid grid-cols-1 gap-2">
               {KEYS.map(([k, d]) => (
-                <div key={k} className="flex items-center justify-between text-xs">
-                  <span className="text-white/70">{d}</span>
-                  <kbd className="rounded-md border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[11px] text-accent">
+                <div key={k} className="flex items-center justify-between text-[12px]">
+                  <span className="text-[var(--text-dim)]">{d}</span>
+                  <kbd className="mono rounded-md border border-[var(--hair-strong)] px-2 py-0.5 text-[11px] text-[var(--text)]">
                     {k}
                   </kbd>
                 </div>
               ))}
             </div>
-            <button className="btn mt-5 w-full justify-center" onClick={onClose}>
+            <button className="btn mt-6 w-full justify-center border border-[var(--hair-strong)]" onClick={onClose}>
               Close
             </button>
           </motion.div>

@@ -4,6 +4,32 @@
 
 import type { Texture } from "three";
 
+export interface Hand {
+  present: boolean;
+  x: number; // uv 0..1
+  y: number; // uv 0..1 (y up)
+  open: number; // 0 = fist, 1 = open palm
+  speed: number; // uv/sec magnitude
+  pinch: number; // thumb-index distance, normalized (0 = pinched)
+}
+
+export interface HandSignals {
+  active: boolean;
+  count: number;
+  h0: Hand;
+  h1: Hand;
+  spread: number; // distance between two palms (uv), 0 if <2 hands
+  spreadVel: number; // d(spread)/dt
+  axis: number; // angle of the line between hands (radians)
+  axisVel: number; // angular velocity of that line -> rotation gestures
+  swirl: number; // single-hand angular velocity around screen center -> vortex
+  energy: number; // overall hand motion energy 0..1 (for global reactivity)
+}
+
+function emptyHand(): Hand {
+  return { present: false, x: 0.5, y: 0.5, open: 0.5, speed: 0, pinch: 1 };
+}
+
 export interface Signals {
   time: number;
 
@@ -28,6 +54,9 @@ export interface Signals {
   camTexture: Texture | null;
   camActive: boolean;
 
+  // Hand tracking (MediaPipe). Positions in uv space 0..1, y up.
+  hands: HandSignals;
+
   // Performance
   fps: number;
   quality: number; // resolution scale multiplier 0.5..1
@@ -50,6 +79,18 @@ export const signals: Signals = {
   camBrightness: 0,
   camTexture: null,
   camActive: false,
+  hands: {
+    active: false,
+    count: 0,
+    h0: emptyHand(),
+    h1: emptyHand(),
+    spread: 0,
+    spreadVel: 0,
+    axis: 0,
+    axisVel: 0,
+    swirl: 0,
+    energy: 0,
+  },
   fps: 60,
   quality: 1,
 };

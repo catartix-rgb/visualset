@@ -17,7 +17,12 @@ export class WebcamEngine {
   private raf = 0;
   motionToForce = 1;
 
+  get isRunning() {
+    return !!this.stream;
+  }
+
   async start() {
+    if (this.stream) return; // already running
     this.stream = await navigator.mediaDevices.getUserMedia({
       video: { width: 640, height: 480, facingMode: "user" },
       audio: false,

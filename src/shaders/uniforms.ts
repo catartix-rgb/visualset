@@ -65,6 +65,22 @@ export function buildUniforms(): Uniforms {
     uAToSpeed: { value: 0.5 },
 
     uFeedback: { value: null },
+
+    // ---- particle morphing + field dynamics (written by ParticleScene) ----
+    uMorph: { value: 0 },
+    uShapeA: { value: 0 },
+    uShapeB: { value: 1 },
+    uFieldRotX: { value: 0 },
+    uFieldRotY: { value: 0 },
+    uFieldScale: { value: 1 },
+    uVortex: { value: 0 },
+    uExplosion: { value: 0 },
+
+    // ---- hands ----
+    uHand0: { value: new THREE.Vector4(0, 0, 0.5, 0) },
+    uHand1: { value: new THREE.Vector4(0, 0, 0.5, 0) },
+    uHandCount: { value: 0 },
+    uHandEnergy: { value: 0 },
   };
 }
 
@@ -125,6 +141,18 @@ export function applySignals(u: Uniforms, time: number) {
 
   u.uCam.value = signals.camTexture ?? DEFAULT_TEX;
   u.uCamActive.value = signals.camActive ? 1 : 0;
-  u.uCamMotion.value = signals.camMotion;
+  // hand motion reinforces camera-motion so every scene reacts to the body
+  u.uCamMotion.value = Math.max(signals.camMotion, signals.hands.energy * 0.8);
   u.uCamBright.value = signals.camBrightness;
+
+  // hand positions (uv -> ndc) for any scene that wants them
+  const h = signals.hands;
+  (u.uHand0.value as THREE.Vector4).set(
+    h.h0.x * 2 - 1, h.h0.y * 2 - 1, h.h0.open, Math.min(2, h.h0.speed)
+  );
+  (u.uHand1.value as THREE.Vector4).set(
+    h.h1.x * 2 - 1, h.h1.y * 2 - 1, h.h1.open, Math.min(2, h.h1.speed)
+  );
+  u.uHandCount.value = h.active ? h.count : 0;
+  u.uHandEnergy.value = h.energy;
 }

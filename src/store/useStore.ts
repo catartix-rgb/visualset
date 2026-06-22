@@ -24,6 +24,7 @@ interface UIState {
   frozen: boolean;
   audioSource: AudioSource;
   cameraOn: boolean;
+  handsOn: boolean;
   recording: boolean;
   toast: string | null;
 }
@@ -47,6 +48,7 @@ interface Store extends VisualState, UIState {
   toggleFreeze: () => void;
   setAudioSource: (s: AudioSource) => void;
   setCameraOn: (v: boolean) => void;
+  setHandsOn: (v: boolean) => void;
   setRecording: (v: boolean) => void;
   flash: (msg: string) => void;
 }
@@ -69,6 +71,7 @@ export const useStore = create<Store>((set, get) => ({
   frozen: false,
   audioSource: "none",
   cameraOn: false,
+  handsOn: false,
   recording: false,
   toast: null,
 
@@ -124,7 +127,19 @@ export const useStore = create<Store>((set, get) => ({
   toggleFreeze: () => set((s) => ({ frozen: !s.frozen })),
   setAudioSource: (src) => set({ audioSource: src }),
   setCameraOn: (v) =>
-    set((s) => ({ cameraOn: v, camera: { ...s.camera, enabled: v } })),
+    set((s) => ({
+      cameraOn: v,
+      camera: { ...s.camera, enabled: v },
+      // turning the camera off also stops hand tracking
+      handsOn: v ? s.handsOn : false,
+    })),
+  setHandsOn: (v) =>
+    set((s) => ({
+      handsOn: v,
+      // hands need the camera; enable it implicitly
+      cameraOn: v ? true : s.cameraOn,
+      camera: { ...s.camera, enabled: v ? true : s.camera.enabled },
+    })),
   setRecording: (v) => set({ recording: v }),
   flash: (msg) => {
     set({ toast: msg });
