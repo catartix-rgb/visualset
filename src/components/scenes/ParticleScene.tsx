@@ -30,6 +30,7 @@ export function ParticleScene() {
     scale: 1,
     vortex: 0,
     explosion: 0,
+    life: 0, // audio energy envelope (fast attack, slow release)
   });
 
   const geometry = useMemo(() => {
@@ -96,10 +97,21 @@ export function ParticleScene() {
     const h = signals.hands;
     const u = uniforms.current;
 
-    // ---- procedural morph sequencing (faster transitions with louder audio) ----
+    // ---- audio energy envelope: fast attack, slow release ----
+    // Quiet => the particles are a stable sleeping shape; sound wakes them up, and
+    // when the music stops they relax back gradually rather than freezing.
+    const energy = Math.max(signals.rms, signals.bass * 0.9, signals.mid * 0.8);
+    const k = energy > s.life ? 0.25 : 0.03; // attack fast, release slow
+    s.life += (energy - s.life) * k;
+    const life = s.life;
+    const AWAKE = 0.07; // below this the scene is considered "asleep"
+
+    // ---- morph sequencing — driven by audio, not constant ----
     if (!frozen) {
-      const speed = (0.32 + signals.rms * 0.5) * dt;
       if (s.phase === "morph") {
+        // finish the current transition (gently even when quiet, so it settles on a
+        // clean shape instead of freezing mid-blend), faster with louder mids.
+        const speed = (life > AWAKE ? 0.18 + life * 0.9 + signals.mid * 0.7 : 0.14) * dt;
         s.morph += speed;
         if (s.morph >= 1) {
           s.morph = 0;
@@ -109,17 +121,19 @@ export function ParticleScene() {
           s.dwell = 1.4 + Math.random() * 1.6;
         }
       } else {
-        s.dwell -= dt;
-        // a strong beat can cut the dwell short -> system feels reactive/alive
-        if (signals.beat > 0.8) s.dwell -= dt * 4;
-        if (s.dwell <= 0) s.phase = "morph";
+        // only schedule a NEW transformation when there is sound to motivate it
+        if (life > AWAKE) {
+          s.dwell -= dt * (0.5 + life * 2.0);
+          if (signals.beat > 0.8) s.dwell -= dt * 4;
+          if (s.dwell <= 0) s.phase = "morph";
+        }
       }
     }
 
     // ---- field dynamics from hands + audio ----
-    // rotation: auto spin + two-hand rotation gesture
-    s.rotY += dt * (0.07 + h.axisVel * 0.6);
-    s.rotX += dt * 0.025;
+    // rotation: a slow elegant idle spin that gains energy with the music + hands
+    s.rotY += dt * (0.04 + life * 0.12 + h.axisVel * 0.6);
+    s.rotX += dt * (0.015 + life * 0.04);
 
     // scale: open palm / hands apart expands & separates, fist / together compresses.
     // Uses the unified expansion gesture so a single open hand works too.
@@ -144,6 +158,7 @@ export function ParticleScene() {
     u.uFieldScale.value = s.scale;
     u.uVortex.value = s.vortex;
     u.uExplosion.value = s.explosion;
+    u.uLife.value = s.life;
 
     // adaptive count for weaker GPUs
     const active = Math.floor(COUNT * THREE.MathUtils.clamp(signals.quality, 0.5, 1));

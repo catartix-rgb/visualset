@@ -35,6 +35,11 @@ GPU in the browser).
   matters (Halftone→Dither ≠ Dither→Halftone). Nothing is on by default — an empty chain
   is just Raw Camera. A **Send to Visual Engine** toggle optionally feeds the camera
   into the generative scenes; off by default so the two systems stay fully independent.
+- **Audio-awakened Particle Flow** — the particle system sleeps into a stable, clean
+  base shape with minimal elegant motion when there's no sound, and *wakes up* with the
+  music: bass drives big expansion/compression, mids drive morphing and reorganisation,
+  treble adds fine vibration. Louder = more transformation. When the music stops it
+  relaxes gradually back to rest (fast attack, slow release) instead of freezing.
 - **Depth / Focus Halftone** — an optional halftone mode with cinematic depth of field:
   dots are large near a focus point and shrink + densify toward the edges. The focus can
   follow the mouse, the tracked fingertip, or be placed manually, and bass expands the

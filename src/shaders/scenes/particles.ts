@@ -19,6 +19,7 @@ uniform float uFieldRotY;
 uniform float uFieldScale;
 uniform float uVortex;
 uniform float uExplosion;
+uniform float uLife;      // audio energy envelope 0..1 (0 = asleep/stable, 1 = fully alive)
 uniform vec4  uHand0;     // xy ndc, z open, w speed
 uniform vec4  uHand1;
 uniform float uHandCount;
@@ -83,13 +84,18 @@ void main(){
   float m = smoothstep(0.0, 1.0, uMorph);
   vec3 pos = mix(pa, pb, m);
 
-  // fragmentation: peak turbulence mid-transition -> structures break & reform
+  // fragmentation: peak turbulence mid-transition -> structures break & reform.
+  // Turbulence is gated by the audio envelope: near-silent => clean stable shape,
+  // louder => more break-up. A tiny constant keeps it from looking dead.
   float frag = sin(m * 3.14159);
-  pos.xy += curl(pos.xy*2.0 + t) * (0.25*frag + uDistort*0.15 + uMid*0.2);
-  pos.z += snoise(pos.xy*1.5 - t) * (0.2*frag);
+  pos.xy += curl(pos.xy*2.0 + t) * ((0.25*frag + uMid*0.25) * uLife + uDistort*0.05);
+  pos.z += snoise(pos.xy*1.5 - t) * (0.2*frag*uLife);
 
-  // breathing / audio swell
-  pos *= uFieldScale * (1.0 + uBass*0.25 + uBeat*0.15);
+  // treble -> fine micro-vibration (only with audio)
+  pos += rand3(aSeed + floor(t*24.0)) * uTreble * 0.03 * uLife;
+
+  // breathing / audio swell: bass drives big expansion/compression of the whole mass
+  pos *= uFieldScale * (1.0 + (uBass*0.5 + uBeat*0.2) * uLife);
 
   // field rotation (auto + hand-driven)
   pos.xz *= rot(uFieldRotY);

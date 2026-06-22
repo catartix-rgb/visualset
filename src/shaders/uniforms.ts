@@ -104,6 +104,7 @@ export function buildUniforms(): Uniforms {
     uFieldScale: { value: 1 },
     uVortex: { value: 0 },
     uExplosion: { value: 0 },
+    uLife: { value: 0 },
 
     // ---- hands ----
     uHand0: { value: new THREE.Vector4(0, 0, 0.5, 0) },
