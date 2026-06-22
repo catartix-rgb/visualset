@@ -73,11 +73,15 @@ export function buildUniforms(): Uniforms {
     uTouchActive: { value: 0 },
     uForce: { value: 1.2 }, // how strongly scenes are displaced by the field
     uHandExpand: { value: 0 },
+    uNfFloor: { value: 0.14 },
+    uNfReturn: { value: 0.45 },
     uTex: { value: DEFAULT_TEX }, // generic input texture for the Camera FX pass chain
 
     // ---- modular camera fx (set via applyCamFx) ----
     uDsOn: { value: 0 }, uDsTouch: { value: 1 }, uDsBass: { value: 1 }, uDsJitter: { value: 1 },
     uHtOn: { value: 1 }, uHtSize: { value: 0.55 }, uHtAngle: { value: 0.4 }, uHtShape: { value: 0 }, uHtAudio: { value: 0.6 },
+    uHtDepth: { value: 0 }, uHtCenterSize: { value: 0.85 }, uHtEdgeSize: { value: 0.2 }, uHtFalloff: { value: 1.6 },
+    uHtFocusR: { value: 0.4 }, uHtFocusSoft: { value: 0.25 }, uHtFocusMode: { value: 0 }, uHtFocusX: { value: 0.5 }, uHtFocusY: { value: 0.5 },
     uDmOn: { value: 0 }, uDmDensity: { value: 90 }, uDmGlow: { value: 0.6 }, uDmAudio: { value: 0.5 },
     uDiOn: { value: 0 }, uDiAlgo: { value: 0 }, uDiScale: { value: 1 }, uDiThresh: { value: 0.5 }, uDiContrast: { value: 1 }, uDiNoise: { value: 0.1 }, uDiAudio: { value: 0.4 },
     uEdOn: { value: 0 }, uEdStrength: { value: 4 }, uEdThick: { value: 1 }, uEdGlow: { value: 1 }, uEdInvert: { value: 0 }, uEdAudio: { value: 0.5 },
@@ -157,12 +161,19 @@ export function applyInteraction(u: Uniforms, i: InteractionParams) {
   u.uForce.value = i.elasticity;
 }
 
+export function applyNoise(u: Uniforms, n: { energyFloor: number; returnStrength: number }) {
+  u.uNfFloor.value = n.energyFloor;
+  u.uNfReturn.value = n.returnStrength;
+}
+
 const b = (v: boolean) => (v ? 1 : 0);
 
 /** Push the modular Camera FX config into uniforms. */
 export function applyCamFx(u: Uniforms, c: CamFx) {
   u.uDsOn.value = b(c.distort.on); u.uDsTouch.value = c.distort.touch; u.uDsBass.value = c.distort.bass; u.uDsJitter.value = c.distort.jitter;
   u.uHtOn.value = b(c.halftone.on); u.uHtSize.value = c.halftone.size; u.uHtAngle.value = c.halftone.angle; u.uHtShape.value = c.halftone.shape; u.uHtAudio.value = c.halftone.audio;
+  u.uHtDepth.value = b(c.halftone.depth); u.uHtCenterSize.value = c.halftone.centerSize; u.uHtEdgeSize.value = c.halftone.edgeSize; u.uHtFalloff.value = c.halftone.falloff;
+  u.uHtFocusR.value = c.halftone.focusRadius; u.uHtFocusSoft.value = c.halftone.focusSoft; u.uHtFocusMode.value = c.halftone.focusMode; u.uHtFocusX.value = c.halftone.focusX; u.uHtFocusY.value = c.halftone.focusY;
   u.uDmOn.value = b(c.dotmatrix.on); u.uDmDensity.value = c.dotmatrix.density; u.uDmGlow.value = c.dotmatrix.glow; u.uDmAudio.value = c.dotmatrix.audio;
   u.uDiOn.value = b(c.dither.on); u.uDiAlgo.value = c.dither.algo; u.uDiScale.value = c.dither.scale; u.uDiThresh.value = c.dither.threshold; u.uDiContrast.value = c.dither.contrast; u.uDiNoise.value = c.dither.noise; u.uDiAudio.value = c.dither.audio;
   u.uEdOn.value = b(c.edge.on); u.uEdStrength.value = c.edge.strength; u.uEdThick.value = c.edge.thickness; u.uEdGlow.value = c.edge.glow; u.uEdInvert.value = b(c.edge.invert); u.uEdAudio.value = c.edge.audio;

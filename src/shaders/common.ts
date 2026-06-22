@@ -65,6 +65,8 @@ uniform sampler2D uTouch;
 uniform float uTouchActive;
 uniform float uForce; // global displacement strength (interaction elasticity)
 uniform float uHandExpand; // -1 compress .. +1 expand (hand gesture), 0 when no hands
+uniform float uNfFloor;    // Noise Field: minimum preserved brightness (energy floor)
+uniform float uNfReturn;   // Noise Field: resistance to lasting deformation (return to base)
 `;
 
 export const COMMON_LIB = /* glsl */ `

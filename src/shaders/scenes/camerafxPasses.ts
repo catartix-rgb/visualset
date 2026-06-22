@@ -8,8 +8,11 @@ import type { CamFxStage } from "@/lib/fx";
 
 const DECL = /* glsl */ `
 uniform sampler2D uTex;
+uniform vec4 uHand0;
 uniform float uDsTouch, uDsBass, uDsJitter;
 uniform float uHtSize, uHtAngle, uHtShape, uHtAudio;
+uniform float uHtDepth, uHtCenterSize, uHtEdgeSize, uHtFalloff;
+uniform float uHtFocusR, uHtFocusSoft, uHtFocusMode, uHtFocusX, uHtFocusY;
 uniform float uDmDensity, uDmGlow, uDmAudio;
 uniform float uDiAlgo, uDiScale, uDiThresh, uDiContrast, uDiNoise, uDiAudio;
 uniform float uEdStrength, uEdThick, uEdGlow, uEdInvert, uEdAudio;
@@ -75,8 +78,28 @@ const EFFECTS: Record<CamFxStage, string> = {
     void main(){
       float lum = lumc(src(vUv));
       float scr = uRes.x / uRes.y;
-      float size = clamp(uHtSize + uBass * uHtAudio * 0.5, 0.05, 1.0);
-      float cells = mix(230.0, 45.0, size);
+
+      float sizeLocal;
+      if(uHtDepth > 0.5){
+        // Depth / Focus Halftone: pick the focus point (center / mouse / finger / manual)
+        vec2 fc = vec2(0.5);
+        int fm = int(uHtFocusMode + 0.5);
+        if(fm == 1) fc = uPointer;                 // mouse
+        else if(fm == 2) fc = uHand0.xy * 0.5 + 0.5; // index fingertip
+        else if(fm == 3) fc = vec2(uHtFocusX, uHtFocusY);
+        // aspect-correct distance to focus; bass expands the focus radius
+        float fd = length((vUv - fc) * vec2(scr, 1.0));
+        float fr = uHtFocusR * (1.0 + uBass * uHtAudio * 0.8);
+        float t = pow(clamp(smoothstep(fr - uHtFocusSoft, fr + uHtFocusSoft, fd), 0.0, 1.0), max(0.2, uHtFalloff));
+        // big dots near focus, fine dots toward the edges; treble sharpens the detail
+        sizeLocal = mix(uHtCenterSize * (1.0 + uBass * uHtAudio * 0.2), uHtEdgeSize, t);
+        sizeLocal = clamp(sizeLocal - t * uTreble * uHtAudio * 0.1, 0.04, 1.0);
+      } else {
+        sizeLocal = clamp(uHtSize + uBass * uHtAudio * 0.5, 0.05, 1.0);
+      }
+
+      // bigger size -> fewer/larger cells; smaller -> denser/finer (density rises at edges)
+      float cells = mix(230.0, 40.0, sizeLocal);
       vec2 rc = (vUv - 0.5); rc *= rot(uHtAngle); rc += 0.5;
       vec2 g = fract(rc * cells * vec2(scr, 1.0)) - 0.5;
       float radius = (1.0 - lum) * 0.62 * (0.85 + uBass * uHtAudio);

@@ -2,7 +2,7 @@
 import { useControls, folder } from "leva";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
-import { DITHER_ALGOS, HALFTONE_SHAPES, SORT_DIRECTIONS, type CamFx, type CamFxStage } from "@/lib/fx";
+import { DITHER_ALGOS, HALFTONE_SHAPES, SORT_DIRECTIONS, FOCUS_MODES, type CamFxStage } from "@/lib/fx";
 
 /**
  * Registers all Leva controls and binds them to the store. Keyed by `${seed}:${sceneId}`
@@ -14,6 +14,7 @@ export function ControlPanel() {
   const a = useStore.getState().audio;
   const c = useStore.getState().camera;
   const ip = useStore.getState().interaction;
+  const nf = useStore.getState().noise;
   const fx = useStore.getState().camfx;
   const sceneId = useStore.getState().sceneId;
 
@@ -22,6 +23,7 @@ export function ControlPanel() {
   const setAudioMap = useStore((s) => s.setAudioMap);
   const setCameraMap = useStore((s) => s.setCameraMap);
   const setInteraction = useStore((s) => s.setInteraction);
+  const setNoise = useStore((s) => s.setNoise);
   const setCamFx = useStore((s) => s.setCamFx);
 
   const paletteOptions = PALETTES.map((x) => x.name);
@@ -66,6 +68,15 @@ export function ControlPanel() {
                   htAngle: cfp("halftone", "angle", "angle", { min: 0, max: 3.14 }),
                   htShape: sel("halftone", "shape", "shape", HALFTONE_SHAPES),
                   htAudio: cfp("halftone", "audio", "audio", { min: 0, max: 2 }),
+                  htDepth: cfb("halftone", "depth", "depth focus"),
+                  htCenterSize: cfp("halftone", "centerSize", "center size", { min: 0.1, max: 1 }),
+                  htEdgeSize: cfp("halftone", "edgeSize", "edge size", { min: 0.02, max: 1 }),
+                  htFalloff: cfp("halftone", "falloff", "falloff", { min: 0.2, max: 4 }),
+                  htFocusR: cfp("halftone", "focusRadius", "focus radius", { min: 0.05, max: 1 }),
+                  htFocusSoft: cfp("halftone", "focusSoft", "focus softness", { min: 0.01, max: 0.6 }),
+                  htFocusMode: sel("halftone", "focusMode", "focus follows", FOCUS_MODES),
+                  htFocusX: cfp("halftone", "focusX", "focus x", { min: 0, max: 1 }),
+                  htFocusY: cfp("halftone", "focusY", "focus y", { min: 0, max: 1 }),
                 },
                 { collapsed: true }
               ),
@@ -209,9 +220,21 @@ export function ControlPanel() {
           turbulence: { value: ip.turbulence, min: 0, max: 3, onChange: (v: number) => setInteraction({ turbulence: v }) },
           fluidity: { value: ip.fluidity, min: 0, max: 2, onChange: (v: number) => setInteraction({ fluidity: v }) },
           elasticity: { value: ip.elasticity, min: 0, max: 3, onChange: (v: number) => setInteraction({ elasticity: v }) },
+          equilibrium: { value: ip.equilibrium, min: 0, max: 1, onChange: (v: number) => setInteraction({ equilibrium: v }) },
         },
         { collapsed: true }
       ),
+      ...(sceneId === "noisefield"
+        ? {
+            "Noise Recovery": folder(
+              {
+                energyPreservation: { value: nf.energyFloor, min: 0, max: 0.5, onChange: (v: number) => setNoise({ energyFloor: v }) },
+                returnToBase: { value: nf.returnStrength, min: 0, max: 1, onChange: (v: number) => setNoise({ returnStrength: v }) },
+              },
+              { collapsed: false }
+            ),
+          }
+        : {}),
       ...camFxFolder,
       "Audio Mapping": folder(
         {

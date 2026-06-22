@@ -6,6 +6,7 @@ import { FULLSCREEN_VERT } from "@/shaders";
 import {
   applyCamFx,
   applyInteraction,
+  applyNoise,
   applyParams,
   applySignals,
   buildUniforms,
@@ -35,6 +36,7 @@ export function FragmentScene({ fragment }: { fragment: string }) {
   const audio = useStore((s) => s.audio);
   const camera = useStore((s) => s.camera);
   const interaction = useStore((s) => s.interaction);
+  const noise = useStore((s) => s.noise);
   const camfx = useStore((s) => s.camfx);
   useEffect(() => {
     applyParams(uniforms.current, params, audio, camera);
@@ -42,6 +44,9 @@ export function FragmentScene({ fragment }: { fragment: string }) {
   useEffect(() => {
     applyInteraction(uniforms.current, interaction);
   }, [interaction]);
+  useEffect(() => {
+    applyNoise(uniforms.current, noise);
+  }, [noise]);
   useEffect(() => {
     applyCamFx(uniforms.current, camfx);
   }, [camfx]);

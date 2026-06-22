@@ -15,7 +15,7 @@ void main(){
   // slow non-repeating drift + finger force
   p += vec2(t * 0.03, sin(t * 0.117) * 0.4 + t * 0.011);
   vec3 tch = touchAt(uv);
-  vec2 fvel = tch.rg * uForce;
+  vec2 fvel = tch.rg * uForce * (1.0 - uNfReturn * 0.5);
   // currents: the smoke is dragged along the fluid velocity from the finger
   p += fvel * (0.7 + uFlow * 0.4);
 
@@ -35,15 +35,19 @@ void main(){
   // finger interaction: opens tunnels (clears smoke) + injects energy waves
   float fmag = length(fvel);
   float dens = clamp(0.62 + 0.6 * f + uBass * 0.3, 0.0, 1.7);
-  dens -= smoothstep(0.3, 1.4, fmag) * 0.7;   // tunnels only on a strong push
+  // tunnels are softened by return-strength and the fluid decays, so holes heal
+  dens -= smoothstep(0.3, 1.4, fmag) * 0.6 * (1.0 - uNfReturn);
   dens += tch.b * uForce * 0.6;               // energy waves
-  dens -= uHandExpand * 0.3;                  // fist densifies, open palm thins out
+  dens -= uHandExpand * 0.25;                 // fist densifies, open palm thins out
   float detail = length(r);
   float tone = clamp(0.25 + 0.45 * dens + 0.3 * detail + uHue, 0.0, 1.0);
 
+  // energy preservation: never let the composition collapse to dead black
+  dens = max(dens, uNfFloor * 0.6);
   vec3 col = ramp(tone);
   col = mix(uBg, col, smoothstep(-0.15, 0.7, dens));    // dense, billowing body
   col += ramp(tone) * 0.12 * smoothstep(0.0, 0.5, dens); // ambient smoke fill
+  col = max(col, ramp(tone) * uNfFloor);                 // minimum visual energy floor
 
   // glowing filaments where the warp folds most (coherent, soft)
   float fil = smoothstep(0.55, 1.2, detail);

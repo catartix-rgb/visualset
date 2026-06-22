@@ -35,6 +35,14 @@ GPU in the browser).
   matters (Halftone→Dither ≠ Dither→Halftone). Nothing is on by default — an empty chain
   is just Raw Camera. A **Send to Visual Engine** toggle optionally feeds the camera
   into the generative scenes; off by default so the two systems stay fully independent.
+- **Depth / Focus Halftone** — an optional halftone mode with cinematic depth of field:
+  dots are large near a focus point and shrink + densify toward the edges. The focus can
+  follow the mouse, the tracked fingertip, or be placed manually, and bass expands the
+  focus radius. Controls: center size, edge size, falloff, focus radius/softness/position.
+- **Self-healing Noise Field** — the smoke can be pushed, smeared and tunnelled, but it
+  preserves a minimum energy (never collapses to black) and the fluid relaxes back to
+  equilibrium so it always reorganises toward its base state. Tunable via Energy
+  Preservation, Return To Base, Equilibrium and Fluid Persistence.
 - **Hand-gesture sculpting** — MediaPipe hand tracking drives a continuous expansion
   signal: open palm / hands apart expands and separates a scene, fist / hands together
   compresses and densifies it. It's progressive (10%…100% open) and applies across

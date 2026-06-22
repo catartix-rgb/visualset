@@ -26,6 +26,7 @@ uniform float uTime;
 uniform float uPersist;
 uniform float uFluidity;
 uniform float uTurb;
+uniform float uEquil;
 uniform float uForce;
 uniform float uRadius;
 uniform float uAspect;
@@ -63,13 +64,15 @@ void main(){
   f.rg += lap.rg * 0.14;
   f.b  += lap.b  * 0.20;
 
-  // vorticity: fast motion curls into swirls
-  float sp = length(f.rg);
-  f.rg += curl2(uv * 9.0 + uTime * 0.4) * uTurb * sp * 0.18;
+  // vorticity: fast motion curls into swirls. Cap the speed term so it cannot feed
+  // back on itself and self-sustain (which used to leave permanent dead zones).
+  float sp = min(length(f.rg), 1.5);
+  f.rg += curl2(uv * 9.0 + uTime * 0.4) * uTurb * sp * 0.13;
 
-  // decay toward rest (organic recovery); ink lingers slightly longer
-  f.rg *= uPersist;
-  f.b  *= mix(uPersist, 0.994, 0.35);
+  // decay toward rest + an explicit equilibrium pull, so the field always relaxes
+  // back to zero (deformations recover, brightness returns).
+  f.rg *= uPersist * (1.0 - uEquil * 0.05);
+  f.b  *= mix(uPersist, 0.994, 0.35) * (1.0 - uEquil * 0.03);
 
   // deposit from pointer + fingertips
   for(int i=0;i<${MAX_PTS};i++){
@@ -118,6 +121,7 @@ export function TouchField() {
           uPersist: { value: 0.984 },
           uFluidity: { value: 1 },
           uTurb: { value: 1 },
+          uEquil: { value: 0.5 },
           uForce: { value: 1.4 },
           uRadius: { value: 0.09 },
           uAspect: { value: 1 },
@@ -194,6 +198,7 @@ export function TouchField() {
     u.uTurb.value = ip.turbulence;
     u.uForce.value = ip.force;
     u.uRadius.value = ip.radius;
+    u.uEquil.value = ip.equilibrium;
 
     const { read, write } = targets.current;
     u.uPrev.value = read.texture;
