@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useFBO } from "@react-three/drei";
 import { FULLSCREEN_VERT, FRAGMENTS } from "@/shaders";
-import { applyParams, applySignals, buildUniforms } from "@/shaders/uniforms";
+import { applyInteraction, applyParams, applySignals, buildUniforms } from "@/shaders/uniforms";
 import { useStore } from "@/store/useStore";
 
 const COPY_FRAG = /* glsl */ `
@@ -72,9 +72,13 @@ export function FeedbackScene() {
   const params = useStore((s) => s.params);
   const audio = useStore((s) => s.audio);
   const camera = useStore((s) => s.camera);
+  const interaction = useStore((s) => s.interaction);
   useEffect(() => {
     applyParams(uniforms.current, params, audio, camera);
   }, [params, audio, camera]);
+  useEffect(() => {
+    applyInteraction(uniforms.current, interaction);
+  }, [interaction]);
 
   useFrame(() => {
     if (!useStore.getState().frozen) timeRef.current += 1 / 60;

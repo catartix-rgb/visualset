@@ -14,6 +14,13 @@ import {
   generateSeed,
   randomScene,
 } from "@/generators/generate";
+import {
+  defaultCamFx,
+  defaultInteraction,
+  type CamFx,
+  type CamFxStage,
+  type InteractionParams,
+} from "@/lib/fx";
 
 export type AudioSource = "none" | "mic" | "file";
 
@@ -30,6 +37,11 @@ interface UIState {
 }
 
 interface Store extends VisualState, UIState {
+  interaction: InteractionParams;
+  camfx: CamFx;
+  setInteraction: (p: Partial<InteractionParams>) => void;
+  setCamFx: <S extends CamFxStage>(stage: S, patch: Partial<CamFx[S]>) => void;
+
   // ---- visual mutations ----
   setScene: (id: SceneId) => void;
   generate: () => void;
@@ -63,6 +75,8 @@ export const useStore = create<Store>((set, get) => ({
   params: generateParams(initialSeed, initialScene),
   audio: defaultAudioMapping(),
   camera: defaultCameraMapping(),
+  interaction: defaultInteraction(),
+  camfx: defaultCamFx(),
 
   // ui state
   panelVisible: true,
@@ -108,6 +122,9 @@ export const useStore = create<Store>((set, get) => ({
   setParams: (p) => set((s) => ({ params: { ...s.params, ...p } })),
   setAudioMap: (p) => set((s) => ({ audio: { ...s.audio, ...p } })),
   setCameraMap: (p) => set((s) => ({ camera: { ...s.camera, ...p } })),
+  setInteraction: (p) => set((s) => ({ interaction: { ...s.interaction, ...p } })),
+  setCamFx: (stage, patch) =>
+    set((s) => ({ camfx: { ...s.camfx, [stage]: { ...s.camfx[stage], ...patch } } })),
 
   loadState: (st) =>
     set({

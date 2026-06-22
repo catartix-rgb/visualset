@@ -63,6 +63,7 @@ uniform sampler2D uFeedback;
 // persistent interaction field: rg = force vector, b = ripple energy
 uniform sampler2D uTouch;
 uniform float uTouchActive;
+uniform float uForce; // global displacement strength (interaction elasticity)
 `;
 
 export const COMMON_LIB = /* glsl */ `

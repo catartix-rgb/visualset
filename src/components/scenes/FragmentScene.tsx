@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { FULLSCREEN_VERT } from "@/shaders";
 import {
+  applyCamFx,
+  applyInteraction,
   applyParams,
   applySignals,
   buildUniforms,
@@ -32,9 +34,17 @@ export function FragmentScene({ fragment }: { fragment: string }) {
   const params = useStore((s) => s.params);
   const audio = useStore((s) => s.audio);
   const camera = useStore((s) => s.camera);
+  const interaction = useStore((s) => s.interaction);
+  const camfx = useStore((s) => s.camfx);
   useEffect(() => {
     applyParams(uniforms.current, params, audio, camera);
   }, [params, audio, camera]);
+  useEffect(() => {
+    applyInteraction(uniforms.current, interaction);
+  }, [interaction]);
+  useEffect(() => {
+    applyCamFx(uniforms.current, camfx);
+  }, [camfx]);
 
   useFrame((_, delta) => {
     if (!useStore.getState().frozen) {

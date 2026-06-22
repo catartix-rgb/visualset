@@ -20,10 +20,17 @@ GPU in the browser).
   cloud/sphere/tunnel/organism/galaxy/lattice, and **Camera FX** (halftone, dot
   matrix, ASCII, edge, posterize, threshold, mono) that turns the webcam into
   audio-reactive material.
-- **Interaction field ("digital pond")** — pointer and index-fingertip input deposit
-  force + ripple energy into a persistent GPU field that diffuses and dissipates over
-  a few seconds; every scene samples it, so you can drag particles, smear smoke and
-  raise liquid ripples by touch.
+- **GPU fluid interaction field ("digital pond")** — pointer and index-fingertip
+  input deposit velocity + energy into a 512² semi-Lagrangian fluid sim (advection +
+  vorticity + decay) sampled bilinearly so deformation is smooth and grid-free. Every
+  scene reads it, so you can drag particles, carve tunnels in the smoke, raise deep
+  liquid waves and spin vortices by touch — with editable Force, Radius, Persistence,
+  Turbulence, Fluidity and Elasticity.
+- **Modular Camera FX** — a stackable image-processing chain over the webcam: Halftone,
+  Dot Matrix, Dither (Bayer/Ordered/Atkinson/Random), Edge, Posterize, Threshold,
+  Monochrome, Pixel Sort, Chromatic Aberration, Scanlines/CRT, Bloom and Film Grain —
+  each independently toggleable with its own parameters and audio routing, like a small
+  TouchDesigner node chain.
 - **Intelligent randomization** — `Generate` rolls a new **seed** that deterministically
   drives palette, motion, speed, distortion, symmetry and physics. Values are pulled
   from curated palettes and centre-biased ranges so results stay *art-directed*, never

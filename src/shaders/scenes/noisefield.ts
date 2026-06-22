@@ -13,7 +13,9 @@ void main(){
   // slow non-repeating drift + finger force
   p += vec2(t * 0.03, sin(t * 0.117) * 0.4 + t * 0.011);
   vec3 tch = touchAt(uv);
-  p += tch.rg * (0.4 + uFlow * 0.2);
+  vec2 fvel = tch.rg * uForce;
+  // currents: the smoke is dragged along the fluid velocity from the finger
+  p += fvel * (0.7 + uFlow * 0.4);
 
   float warp = 1.4 + uDistort * 1.2 + uMid * 1.0 + uCamMotion * 1.5;
 
@@ -28,13 +30,17 @@ void main(){
   );
   float f = fbm(p + warp * r + t * 0.04, 5);
 
-  // density + colour mapped smoothly from the warped field
-  float dens = clamp(0.5 + 0.5 * f + uBass * 0.25 + tch.b * 0.5, 0.0, 1.4);
+  // finger interaction: opens tunnels (clears smoke) + injects energy waves
+  float fmag = length(fvel);
+  float dens = clamp(0.62 + 0.6 * f + uBass * 0.3, 0.0, 1.7);
+  dens -= smoothstep(0.3, 1.4, fmag) * 0.7;   // tunnels only on a strong push
+  dens += tch.b * uForce * 0.6;               // energy waves
   float detail = length(r);
-  float tone = clamp(0.25 + 0.5 * dens + 0.25 * detail + uHue, 0.0, 1.0);
+  float tone = clamp(0.25 + 0.45 * dens + 0.3 * detail + uHue, 0.0, 1.0);
 
   vec3 col = ramp(tone);
-  col = mix(uBg, col, smoothstep(0.05, 0.85, dens));
+  col = mix(uBg, col, smoothstep(-0.15, 0.7, dens));    // dense, billowing body
+  col += ramp(tone) * 0.12 * smoothstep(0.0, 0.5, dens); // ambient smoke fill
 
   // glowing filaments where the warp folds most (coherent, soft)
   float fil = smoothstep(0.55, 1.2, detail);

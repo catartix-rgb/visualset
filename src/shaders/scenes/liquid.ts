@@ -16,18 +16,20 @@ float surfH(vec2 uv){
   float h = fbm(w * 1.2 + t * 0.1, int(uComplexity));
 
   float r = length(p);
-  // bass: deep concentric waves radiating from the centre + cross swell
-  h += uAToScale * uBass * 0.8 * sin(r * 4.0 - t * 2.2) * exp(-r * 0.25);
-  h += uBass * 0.45 * sin(p.x * 3.0 + t * 1.5) * sin(p.y * 3.0 - t * 1.2);
+  // bass: deep concentric waves that visibly deform the WHOLE surface
+  h += (1.0 + uAToScale) * uBass * 1.4 * sin(r * 3.0 - t * 2.2) * exp(-r * 0.18);
+  h += uBass * 0.8 * sin(p.x * 2.2 + t * 1.3) * sin(p.y * 2.2 - t * 1.1);
   // mid: turbulence
-  h += uMid * 0.5 * fbm(w * 3.0 + t, 4);
+  h += uMid * 0.6 * fbm(w * 3.0 + t, 4);
   // treble: high-frequency micro vibration
-  h += uTreble * 0.18 * snoise(p * 15.0 + t * 3.0);
+  h += uTreble * 0.2 * snoise(p * 15.0 + t * 3.0);
 
-  // fingertip / pointer ripples (persist + dissipate via the field)
+  // fingertip / pointer: deep displacement, swirls and a big wave front
   vec3 tch = touchAt(uv);
-  h += tch.b * 0.9;
-  h += dot(tch.rg, p) * 0.04;
+  vec2 force = tch.rg * uForce;
+  h += tch.b * uForce * 1.6;                         // deep ripples
+  h += dot(force, p) * 0.18;                         // mass pushed sideways
+  h += length(force) * 0.6;                          // swelling where touched
   return h;
 }
 
@@ -35,8 +37,8 @@ void main(){
   vec2 uv = vUv;
 
   // drag the surface sideways where the field has force (liquid being pushed)
-  vec2 force = touchAt(uv).rg;
-  uv += force * 0.02;
+  vec2 force = touchAt(uv).rg * uForce;
+  uv += force * 0.06;
 
   float e = 1.6 / uRes.y;
   float hC = surfH(uv);

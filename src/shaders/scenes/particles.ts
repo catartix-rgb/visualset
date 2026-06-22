@@ -129,8 +129,8 @@ void main(){
   // interaction field: finger/pointer drags particles and shoves ripples
   if(uTouchActive > 0.5){
     vec3 tf = texture2D(uTouch, ndc * 0.5 + 0.5).rgb;
-    ndc += tf.rg * 0.08;
-    ndc += normalize(ndc + 1e-4) * tf.b * 0.05;
+    ndc += tf.rg * uForce * 0.18;
+    ndc += normalize(ndc + 1e-4) * tf.b * uForce * 0.1;
   }
 
   gl_Position = vec4(ndc, 0.0, 1.0);

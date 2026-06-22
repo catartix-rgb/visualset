@@ -7,7 +7,7 @@ import {
   PARTICLE_FRAG,
   SHAPE_COUNT,
 } from "@/shaders/scenes/particles";
-import { applyParams, applySignals, buildUniforms } from "@/shaders/uniforms";
+import { applyInteraction, applyParams, applySignals, buildUniforms } from "@/shaders/uniforms";
 import { useStore } from "@/store/useStore";
 import { signals } from "@/lib/signals";
 
@@ -75,9 +75,13 @@ export function ParticleScene() {
   const params = useStore((s) => s.params);
   const audio = useStore((s) => s.audio);
   const camera = useStore((s) => s.camera);
+  const interaction = useStore((s) => s.interaction);
   useEffect(() => {
     applyParams(uniforms.current, params, audio, camera);
   }, [params, audio, camera]);
+  useEffect(() => {
+    applyInteraction(uniforms.current, interaction);
+  }, [interaction]);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
