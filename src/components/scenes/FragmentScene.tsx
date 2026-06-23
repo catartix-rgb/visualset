@@ -5,6 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { FULLSCREEN_VERT } from "@/shaders";
 import {
   applyCamFx,
+  applyClay,
   applyInteraction,
   applyNoise,
   applyParams,
@@ -37,6 +38,7 @@ export function FragmentScene({ fragment }: { fragment: string }) {
   const camera = useStore((s) => s.camera);
   const interaction = useStore((s) => s.interaction);
   const noise = useStore((s) => s.noise);
+  const clay = useStore((s) => s.clay);
   const camfx = useStore((s) => s.camfx);
   useEffect(() => {
     applyParams(uniforms.current, params, audio, camera);
@@ -47,6 +49,9 @@ export function FragmentScene({ fragment }: { fragment: string }) {
   useEffect(() => {
     applyNoise(uniforms.current, noise);
   }, [noise]);
+  useEffect(() => {
+    applyClay(uniforms.current, clay);
+  }, [clay]);
   useEffect(() => {
     applyCamFx(uniforms.current, camfx);
   }, [camfx]);

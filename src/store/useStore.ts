@@ -19,10 +19,12 @@ import {
   defaultCamfxOrder,
   defaultInteraction,
   defaultNoise,
+  defaultClay,
   type CamFx,
   type CamFxStage,
   type InteractionParams,
   type NoiseParams,
+  type ClayParams,
 } from "@/lib/fx";
 
 export type AudioSource = "none" | "mic" | "file";
@@ -42,10 +44,12 @@ interface UIState {
 interface Store extends VisualState, UIState {
   interaction: InteractionParams;
   noise: NoiseParams;
+  clay: ClayParams;
   camfx: CamFx;
   camfxOrder: CamFxStage[];
   setInteraction: (p: Partial<InteractionParams>) => void;
   setNoise: (p: Partial<NoiseParams>) => void;
+  setClay: (p: Partial<ClayParams>) => void;
   setCamFx: <S extends CamFxStage>(stage: S, patch: Partial<CamFx[S]>) => void;
   setCamfxOrder: (order: CamFxStage[]) => void;
 
@@ -84,6 +88,7 @@ export const useStore = create<Store>((set, get) => ({
   camera: defaultCameraMapping(),
   interaction: defaultInteraction(),
   noise: defaultNoise(),
+  clay: defaultClay(),
   camfx: defaultCamFx(),
   camfxOrder: defaultCamfxOrder(),
 
@@ -133,6 +138,7 @@ export const useStore = create<Store>((set, get) => ({
   setCameraMap: (p) => set((s) => ({ camera: { ...s.camera, ...p } })),
   setInteraction: (p) => set((s) => ({ interaction: { ...s.interaction, ...p } })),
   setNoise: (p) => set((s) => ({ noise: { ...s.noise, ...p } })),
+  setClay: (p) => set((s) => ({ clay: { ...s.clay, ...p } })),
   setCamFx: (stage, patch) =>
     set((s) => ({ camfx: { ...s.camfx, [stage]: { ...s.camfx[stage], ...patch } } })),
   setCamfxOrder: (order) => set({ camfxOrder: order }),

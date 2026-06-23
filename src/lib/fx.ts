@@ -21,6 +21,21 @@ export function defaultNoise(): NoiseParams {
   return { energyFloor: 0.14, returnStrength: 0.45 };
 }
 
+/** Clay Morphing controls. */
+export interface ClayParams {
+  material: number; // index into CLAY_MATERIALS
+  softness: number; // smooth-min radius — higher = more melty / filaments
+  detail: number; // surface skin detail amount
+}
+
+export const CLAY_MATERIALS = [
+  "Clay", "Wax", "Mercury", "Gelatin", "Biological", "Lava", "Chrome",
+] as const;
+
+export function defaultClay(): ClayParams {
+  return { material: 0, softness: 0.4, detail: 0.5 };
+}
+
 export function defaultInteraction(): InteractionParams {
   return {
     force: 1.4,

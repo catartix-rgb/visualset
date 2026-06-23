@@ -79,6 +79,9 @@ export function buildUniforms(): Uniforms {
     uHandExpand: { value: 0 },
     uNfFloor: { value: 0.14 },
     uNfReturn: { value: 0.45 },
+    uMaterial: { value: 0 },
+    uClaySoft: { value: 0.4 },
+    uClayDetail: { value: 0.5 },
     uTex: { value: DEFAULT_TEX }, // generic input texture for the Camera FX pass chain
 
     // ---- modular camera fx (set via applyCamFx) ----
@@ -172,6 +175,12 @@ export function applyInteraction(u: Uniforms, i: InteractionParams) {
 export function applyNoise(u: Uniforms, n: { energyFloor: number; returnStrength: number }) {
   u.uNfFloor.value = n.energyFloor;
   u.uNfReturn.value = n.returnStrength;
+}
+
+export function applyClay(u: Uniforms, c: { material: number; softness: number; detail: number }) {
+  u.uMaterial.value = c.material;
+  u.uClaySoft.value = c.softness;
+  u.uClayDetail.value = c.detail;
 }
 
 const b = (v: boolean) => (v ? 1 : 0);

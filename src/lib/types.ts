@@ -9,6 +9,7 @@ export type SceneId =
   | "geometric"
   | "feedback"
   | "particles"
+  | "clay"
   | "rawcam"
   | "camerafx";
 
@@ -85,6 +86,7 @@ export const SCENES: SceneMeta[] = [
   { id: "geometric", name: "Geometric", tags: ["shapes", "reactive"] },
   { id: "feedback", name: "Feedback / Trails", tags: ["glitch", "feedback", "trails"] },
   { id: "particles", name: "Particle Flow", tags: ["particles", "flowfield", "fluid"] },
+  { id: "clay", name: "Clay Morphing", tags: ["metaballs", "sculpture", "soft", "raymarch"] },
   { id: "rawcam", name: "Raw Camera", tags: ["camera", "clean", "source"] },
   { id: "camerafx", name: "Camera FX", tags: ["camera", "halftone", "edge", "dither"] },
 ];

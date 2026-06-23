@@ -35,6 +35,13 @@ GPU in the browser).
   matters (Halftone→Dither ≠ Dither→Halftone). Nothing is on by default — an empty chain
   is just Raw Camera. A **Send to Visual Engine** toggle optionally feeds the camera
   into the generative scenes; off by default so the two systems stay fully independent.
+- **Clay Morphing / Digital Clay** — a raymarched metaball sculpture that behaves like
+  living soft matter: smooth-min blobs merge, stretch, melt, collapse and regenerate
+  while morphing between configurations. Hands are the main tool — index fingers press
+  dents and ripples into the surface, an open palm / hands apart stretches it into
+  filaments, a fist / hands together compresses it. Bass pulses the whole mass, mids
+  reorganise it, treble adds surface vibration. Seven materials reshade it entirely:
+  Clay, Wax, Mercury, Gelatin, Biological, Lava, Chrome.
 - **Silhouette Halftone** — segments the person (MediaPipe Selfie Segmenter), discards
   the background/room, and rebuilds the body **entirely out of halftone dots** over a
   flat poster background — screenprint / offset / editorial look, not a webcam filter.

@@ -8,6 +8,7 @@ import { LIQUID_MAIN } from "./scenes/liquid";
 import { GEOMETRIC_MAIN } from "./scenes/geometric";
 import { FEEDBACK_MAIN } from "./scenes/feedback";
 import { RAWCAM_MAIN } from "./scenes/rawcam";
+import { CLAY_MAIN } from "./scenes/clay";
 import type { SceneId } from "@/lib/types";
 
 /** Fragment shaders for the fullscreen scenes. `particles` renders geometry and
@@ -20,6 +21,7 @@ export const FRAGMENTS: Record<Exclude<SceneId, "particles" | "camerafx">, strin
   liquid: buildFragment(LIQUID_MAIN),
   geometric: buildFragment(GEOMETRIC_MAIN),
   feedback: buildFragment(FEEDBACK_MAIN),
+  clay: buildFragment(CLAY_MAIN),
   rawcam: buildFragment(RAWCAM_MAIN),
 };
 

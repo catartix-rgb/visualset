@@ -2,7 +2,7 @@
 import { useControls, folder } from "leva";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
-import { DITHER_ALGOS, HALFTONE_SHAPES, HALFTONE_COLOR_MODES, PIXELSORT_MODES, FOCUS_MODES, type CamFxStage } from "@/lib/fx";
+import { DITHER_ALGOS, HALFTONE_SHAPES, HALFTONE_COLOR_MODES, PIXELSORT_MODES, FOCUS_MODES, CLAY_MATERIALS, type CamFxStage } from "@/lib/fx";
 
 /**
  * Registers all Leva controls and binds them to the store. Keyed by `${seed}:${sceneId}`
@@ -15,6 +15,7 @@ export function ControlPanel() {
   const c = useStore.getState().camera;
   const ip = useStore.getState().interaction;
   const nf = useStore.getState().noise;
+  const clay = useStore.getState().clay;
   const fx = useStore.getState().camfx;
   const sceneId = useStore.getState().sceneId;
 
@@ -24,6 +25,7 @@ export function ControlPanel() {
   const setCameraMap = useStore((s) => s.setCameraMap);
   const setInteraction = useStore((s) => s.setInteraction);
   const setNoise = useStore((s) => s.setNoise);
+  const setClay = useStore((s) => s.setClay);
   const setCamFx = useStore((s) => s.setCamFx);
 
   const paletteOptions = PALETTES.map((x) => x.name);
@@ -243,6 +245,22 @@ export function ControlPanel() {
               {
                 energyPreservation: { value: nf.energyFloor, min: 0, max: 0.5, onChange: (v: number) => setNoise({ energyFloor: v }) },
                 returnToBase: { value: nf.returnStrength, min: 0, max: 1, onChange: (v: number) => setNoise({ returnStrength: v }) },
+              },
+              { collapsed: false }
+            ),
+          }
+        : {}),
+      ...(sceneId === "clay"
+        ? {
+            Clay: folder(
+              {
+                material: {
+                  value: CLAY_MATERIALS[clay.material],
+                  options: CLAY_MATERIALS as unknown as string[],
+                  onChange: (n: string) => setClay({ material: CLAY_MATERIALS.indexOf(n as never) }),
+                },
+                softness: { value: clay.softness, min: 0.1, max: 1, onChange: (v: number) => setClay({ softness: v }) },
+                detail: { value: clay.detail, min: 0, max: 1, onChange: (v: number) => setClay({ detail: v }) },
               },
               { collapsed: false }
             ),
