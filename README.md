@@ -57,6 +57,17 @@ GPU in the browser).
   per-pixel motion map (your silhouette) drives streak direction and length, so moving
   your arm physically drags pixels. Controls: threshold, sort length, direction, speed,
   density, brightness/colour/motion influence; bass lengthens sweeps, treble fragments.
+- **Lyrics Engine — lyric-reactive visuals** — load synced **LRC** or paste plain text;
+  the engine auto-detects the language (Spanish/English/French/German/Portuguese/
+  Italian/Swedish/Japanese/Korean), syncs each line to playback (or paces pasted text),
+  and renders artistic, audio-reactive **typography** in five modes (Particles, Flow,
+  Halftone, Clay, Noise) — bass scales the words, mids skew them, treble makes them
+  shimmer. A multilingual **semantic** layer reads the meaning of each line and reacts
+  artistically: *water* → cool waves, *fire* → warm flicker, *fall* → downward drift,
+  *fly* → rise, *night* → dim, *love* → soft organic motion — gently biasing the whole
+  scene's palette. A dynamic **word cloud** surfaces the song's recurring words and
+  lights them up as they're sung. (Synced lyrics import + on-device analysis; live
+  Whisper/STT and cloud-AI interpretation are optional and not bundled.)
 - **Audio-awakened Particle Flow** — the particle system sleeps into a stable, clean
   base shape with minimal elegant motion when there's no sound, and *wakes up* with the
   music: bass drives big expansion/compression, mids drive morphing and reorganisation,

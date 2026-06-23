@@ -37,9 +37,13 @@ function Btn({
 export function TopBar({
   libraryOpen,
   onToggleLibrary,
+  lyricsOpen,
+  onToggleLyrics,
 }: {
   libraryOpen: boolean;
   onToggleLibrary: () => void;
+  lyricsOpen: boolean;
+  onToggleLyrics: () => void;
 }) {
   const sceneId = useStore((s) => s.sceneId);
   const seed = useStore((s) => s.seed);
@@ -119,6 +123,9 @@ export function TopBar({
         </Btn>
         <Btn active={handsOn} onClick={() => setHandsOn(!handsOn)} title="Hand tracking">
           Hands
+        </Btn>
+        <Btn active={lyricsOpen} onClick={onToggleLyrics} title="Lyrics engine">
+          Lyrics
         </Btn>
 
         <span className="divider" />

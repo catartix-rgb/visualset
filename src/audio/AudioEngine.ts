@@ -23,6 +23,18 @@ export class AudioEngine {
   midGain = 1;
   trebleGain = 1;
 
+  // playback timeline (file source) — used by the Lyrics Engine to sync words
+  get playTime() {
+    return this.audioEl?.currentTime ?? 0;
+  }
+  get playDuration() {
+    const d = this.audioEl?.duration;
+    return d && isFinite(d) ? d : 0;
+  }
+  get hasTimeline() {
+    return !!this.audioEl && !!this.audioEl.src;
+  }
+
   private ensureCtx() {
     if (!this.ctx) {
       const AC =

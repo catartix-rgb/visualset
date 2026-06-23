@@ -26,6 +26,20 @@ import {
   type NoiseParams,
   type ClayParams,
 } from "@/lib/fx";
+import type { LyricLine, LyricMode, LyricIntent } from "@/lyrics/types";
+import { NEUTRAL_INTENT } from "@/lyrics/types";
+
+export interface LyricsState {
+  enabled: boolean;
+  mode: LyricMode;
+  lines: LyricLine[];
+  index: number; // current line (-1 none)
+  lang: string;
+  synced: boolean; // true = LRC timestamps, false = distributed
+  intent: LyricIntent;
+  cloud: { w: string; n: number }[];
+  auto: boolean; // let lyrics bias palette / colours
+}
 
 export type AudioSource = "none" | "mic" | "file";
 
@@ -45,6 +59,8 @@ interface Store extends VisualState, UIState {
   interaction: InteractionParams;
   noise: NoiseParams;
   clay: ClayParams;
+  lyrics: LyricsState;
+  setLyrics: (p: Partial<LyricsState>) => void;
   camfx: CamFx;
   camfxOrder: CamFxStage[];
   setInteraction: (p: Partial<InteractionParams>) => void;
@@ -89,6 +105,17 @@ export const useStore = create<Store>((set, get) => ({
   interaction: defaultInteraction(),
   noise: defaultNoise(),
   clay: defaultClay(),
+  lyrics: {
+    enabled: false,
+    mode: "particles",
+    lines: [],
+    index: -1,
+    lang: "",
+    synced: false,
+    intent: NEUTRAL_INTENT,
+    cloud: [],
+    auto: true,
+  },
   camfx: defaultCamFx(),
   camfxOrder: defaultCamfxOrder(),
 
@@ -139,6 +166,7 @@ export const useStore = create<Store>((set, get) => ({
   setInteraction: (p) => set((s) => ({ interaction: { ...s.interaction, ...p } })),
   setNoise: (p) => set((s) => ({ noise: { ...s.noise, ...p } })),
   setClay: (p) => set((s) => ({ clay: { ...s.clay, ...p } })),
+  setLyrics: (p) => set((s) => ({ lyrics: { ...s.lyrics, ...p } })),
   setCamFx: (stage, patch) =>
     set((s) => ({ camfx: { ...s.camfx, [stage]: { ...s.camfx[stage], ...patch } } })),
   setCamfxOrder: (order) => set({ camfxOrder: order }),
