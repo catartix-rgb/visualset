@@ -27,6 +27,7 @@ export function buildUniforms(): Uniforms {
     uTreble: { value: 0 },
     uRms: { value: 0 },
     uBeat: { value: 0 },
+    uEnergy: { value: 0 },
 
     uPointer: { value: new THREE.Vector2(0.5, 0.5) },
     uPointerDown: { value: 0 },
@@ -82,6 +83,7 @@ export function buildUniforms(): Uniforms {
     uMaterial: { value: 0 },
     uClaySoft: { value: 0.4 },
     uClayDetail: { value: 0.5 },
+    uClayMode: { value: 0 },
     uTex: { value: DEFAULT_TEX }, // generic input texture for the Camera FX pass chain
 
     // ---- modular camera fx (set via applyCamFx) ----
@@ -177,10 +179,11 @@ export function applyNoise(u: Uniforms, n: { energyFloor: number; returnStrength
   u.uNfReturn.value = n.returnStrength;
 }
 
-export function applyClay(u: Uniforms, c: { material: number; softness: number; detail: number }) {
+export function applyClay(u: Uniforms, c: { mode: number; material: number; softness: number; detail: number }) {
   u.uMaterial.value = c.material;
   u.uClaySoft.value = c.softness;
   u.uClayDetail.value = c.detail;
+  u.uClayMode.value = c.mode;
 }
 
 const b = (v: boolean) => (v ? 1 : 0);
@@ -222,6 +225,11 @@ export function applySignals(u: Uniforms, time: number) {
   u.uTreble.value = signals.treble;
   u.uRms.value = signals.rms;
   u.uBeat.value = signals.beat;
+
+  // global audio energy envelope (fast attack, slow release) — drives "asleep vs alive"
+  const tgt = Math.max(signals.rms, signals.bass * 0.9, signals.mid * 0.8);
+  signals.energy += (tgt - signals.energy) * (tgt > signals.energy ? 0.25 : 0.03);
+  u.uEnergy.value = signals.energy;
 
   (u.uPointer.value as THREE.Vector2).set(signals.pointerX, signals.pointerY);
   u.uPointerDown.value = signals.pointerDown;

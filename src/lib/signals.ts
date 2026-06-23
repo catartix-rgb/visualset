@@ -42,6 +42,7 @@ export interface Signals {
   treble: number;
   rms: number;
   beat: number; // decays from 1 toward 0 after each detected beat
+  energy: number; // smoothed overall audio energy (fast attack, slow release) 0..1
   audioActive: boolean;
 
   // Pointer / touch (uv space 0..1, y up)
@@ -78,6 +79,7 @@ export const signals: Signals = {
   treble: 0,
   rms: 0,
   beat: 0,
+  energy: 0,
   audioActive: false,
   pointerX: 0.5,
   pointerY: 0.5,

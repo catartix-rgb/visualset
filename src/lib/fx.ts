@@ -23,6 +23,7 @@ export function defaultNoise(): NoiseParams {
 
 /** Clay Morphing controls. */
 export interface ClayParams {
+  mode: number; // 0 Sculpture, 1 Clay Camera (segmented body), 2 Clay Halftone
   material: number; // index into CLAY_MATERIALS
   softness: number; // smooth-min radius — higher = more melty / filaments
   detail: number; // surface skin detail amount
@@ -32,8 +33,10 @@ export const CLAY_MATERIALS = [
   "Clay", "Wax", "Mercury", "Gelatin", "Biological", "Lava", "Chrome",
 ] as const;
 
+export const CLAY_MODES = ["Sculpture", "Clay Camera", "Clay Halftone"] as const;
+
 export function defaultClay(): ClayParams {
-  return { material: 0, softness: 0.4, detail: 0.5 };
+  return { mode: 0, material: 0, softness: 0.4, detail: 0.5 };
 }
 
 export function defaultInteraction(): InteractionParams {

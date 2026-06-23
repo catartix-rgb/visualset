@@ -3,27 +3,40 @@ import { getSegmentationEngine } from "./SegmentationEngine";
 import { useStore } from "@/store/useStore";
 
 /**
- * Runs person segmentation only when it's actually needed: the camera is on and the
- * Silhouette Halftone mode is enabled. Lazy-loads the (heavy) MediaPipe segmenter on
- * demand and stops it when no longer required.
+ * Runs person segmentation only when needed: Silhouette Halftone, or the camera-based
+ * Clay modes (Clay Camera / Clay Halftone). Lazy-loads the MediaPipe segmenter and
+ * auto-enables the webcam for those modes; stops everything when no longer required.
  */
 export function useSegmentation() {
   const cameraOn = useStore((s) => s.cameraOn);
+  const setCameraOn = useStore((s) => s.setCameraOn);
   const silhouette = useStore((s) => s.camfx.halftone.silhouette);
   const halftoneOn = useStore((s) => s.camfx.halftone.on);
+  const clayMode = useStore((s) => s.clay.mode);
   const sceneId = useStore((s) => s.sceneId);
 
-  const need = cameraOn && sceneId === "camerafx" && halftoneOn && silhouette;
+  const wantsCamera =
+    (sceneId === "camerafx" && halftoneOn && silhouette) ||
+    (sceneId === "clay" && clayMode > 0);
+
+  // auto-enable the webcam for camera-driven modes
+  useEffect(() => {
+    if (wantsCamera && !cameraOn) setCameraOn(true);
+  }, [wantsCamera, cameraOn, setCameraOn]);
 
   useEffect(() => {
     const e = getSegmentationEngine();
-    if (need) {
+    if (wantsCamera && cameraOn) {
       e.start().catch((err) => console.error(err));
     } else {
       e.stop();
     }
     return () => {
-      if (!useStore.getState().camfx.halftone.silhouette) e.stop();
+      const s = useStore.getState();
+      const still =
+        (s.sceneId === "camerafx" && s.camfx.halftone.on && s.camfx.halftone.silhouette) ||
+        (s.sceneId === "clay" && s.clay.mode > 0);
+      if (!still) e.stop();
     };
-  }, [need]);
+  }, [wantsCamera, cameraOn]);
 }

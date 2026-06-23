@@ -14,6 +14,7 @@ uniform float uMid;
 uniform float uTreble;
 uniform float uRms;
 uniform float uBeat;
+uniform float uEnergy; // smoothed audio energy (fast attack, slow release)
 
 // pointer
 uniform vec2  uPointer;

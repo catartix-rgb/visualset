@@ -2,7 +2,7 @@
 import { useControls, folder } from "leva";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
-import { DITHER_ALGOS, HALFTONE_SHAPES, HALFTONE_COLOR_MODES, PIXELSORT_MODES, FOCUS_MODES, CLAY_MATERIALS, type CamFxStage } from "@/lib/fx";
+import { DITHER_ALGOS, HALFTONE_SHAPES, HALFTONE_COLOR_MODES, PIXELSORT_MODES, FOCUS_MODES, CLAY_MATERIALS, CLAY_MODES, type CamFxStage } from "@/lib/fx";
 
 /**
  * Registers all Leva controls and binds them to the store. Keyed by `${seed}:${sceneId}`
@@ -254,6 +254,15 @@ export function ControlPanel() {
         ? {
             Clay: folder(
               {
+                mode: {
+                  value: CLAY_MODES[clay.mode],
+                  options: CLAY_MODES as unknown as string[],
+                  onChange: (n: string) => {
+                    const idx = CLAY_MODES.indexOf(n as never);
+                    setClay({ mode: idx });
+                    if (idx > 0) useStore.getState().setCameraOn(true);
+                  },
+                },
                 material: {
                   value: CLAY_MATERIALS[clay.material],
                   options: CLAY_MATERIALS as unknown as string[],
