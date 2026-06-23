@@ -2,7 +2,7 @@
 import { useControls, folder } from "leva";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
-import { DITHER_ALGOS, HALFTONE_SHAPES, PIXELSORT_MODES, FOCUS_MODES, type CamFxStage } from "@/lib/fx";
+import { DITHER_ALGOS, HALFTONE_SHAPES, HALFTONE_COLOR_MODES, PIXELSORT_MODES, FOCUS_MODES, type CamFxStage } from "@/lib/fx";
 
 /**
  * Registers all Leva controls and binds them to the store. Keyed by `${seed}:${sceneId}`
@@ -77,6 +77,12 @@ export function ControlPanel() {
                   htFocusMode: sel("halftone", "focusMode", "focus follows", FOCUS_MODES),
                   htFocusX: cfp("halftone", "focusX", "focus x", { min: 0, max: 1 }),
                   htFocusY: cfp("halftone", "focusY", "focus y", { min: 0, max: 1 }),
+                  htSil: cfb("halftone", "silhouette", "silhouette (body)"),
+                  htColorMode: sel("halftone", "colorMode", "color mode", HALFTONE_COLOR_MODES),
+                  htInvert: cfb("halftone", "invert", "invert (B/W)"),
+                  htBg: { value: fx.halftone.bg, label: "bg color", onChange: (v: string) => setCamFx("halftone", { bg: v } as never) },
+                  htInk1: { value: fx.halftone.ink1, label: "ink 1", onChange: (v: string) => setCamFx("halftone", { ink1: v } as never) },
+                  htInk2: { value: fx.halftone.ink2, label: "ink 2", onChange: (v: string) => setCamFx("halftone", { ink2: v } as never) },
                 },
                 { collapsed: true }
               ),

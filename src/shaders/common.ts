@@ -27,6 +27,8 @@ uniform float uCamMotion;
 uniform float uCamBright;
 uniform sampler2D uMotion;   // per-cell webcam motion map (silhouette movement)
 uniform float uMotionActive;
+uniform sampler2D uMask;     // person segmentation mask (1 = person)
+uniform float uMaskActive;
 uniform float uCamFeed;
 uniform float uCamMirror;
 
@@ -197,6 +199,13 @@ vec3 touchAt(vec2 uv){
 float motionAt(vec2 uv){
   if(uMotionActive < 0.5) return 0.0;
   return texture2D(uMotion, clamp(uv, 0.0, 1.0)).r;
+}
+
+// person segmentation mask (1 = person). Returns 1 everywhere when unavailable so
+// silhouette effects degrade gracefully to a full-frame look.
+float maskAt(vec2 uv){
+  if(uMaskActive < 0.5) return 1.0;
+  return texture2D(uMask, clamp(uv, 0.0, 1.0)).r;
 }
 
 // kaleidoscope fold

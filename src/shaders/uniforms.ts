@@ -38,6 +38,8 @@ export function buildUniforms(): Uniforms {
     uCamBright: { value: 0 },
     uMotion: { value: DEFAULT_TEX },
     uMotionActive: { value: 0 },
+    uMask: { value: DEFAULT_TEX },
+    uMaskActive: { value: 0 },
     uCamFeed: { value: 0 },
     uCamMirror: { value: 1 },
 
@@ -84,6 +86,8 @@ export function buildUniforms(): Uniforms {
     uHtOn: { value: 1 }, uHtSize: { value: 0.55 }, uHtAngle: { value: 0.4 }, uHtShape: { value: 0 }, uHtAudio: { value: 0.6 },
     uHtDepth: { value: 0 }, uHtCenterSize: { value: 0.85 }, uHtEdgeSize: { value: 0.2 }, uHtFalloff: { value: 1.6 },
     uHtFocusR: { value: 0.4 }, uHtFocusSoft: { value: 0.25 }, uHtFocusMode: { value: 0 }, uHtFocusX: { value: 0.5 }, uHtFocusY: { value: 0.5 },
+    uHtSil: { value: 0 }, uHtColorMode: { value: 0 }, uHtInvert: { value: 0 },
+    uHtBg: { value: new THREE.Vector3(0.96, 0.95, 0.92) }, uHtInk1: { value: new THREE.Vector3(0.05, 0.05, 0.06) }, uHtInk2: { value: new THREE.Vector3(0.9, 0.2, 0.3) },
     uDmOn: { value: 0 }, uDmDensity: { value: 90 }, uDmGlow: { value: 0.6 }, uDmAudio: { value: 0.5 },
     uDiOn: { value: 0 }, uDiAlgo: { value: 0 }, uDiScale: { value: 1 }, uDiThresh: { value: 0.5 }, uDiContrast: { value: 1 }, uDiNoise: { value: 0.1 }, uDiAudio: { value: 0.4 },
     uEdOn: { value: 0 }, uEdStrength: { value: 4 }, uEdThick: { value: 1 }, uEdGlow: { value: 1 }, uEdInvert: { value: 0 }, uEdAudio: { value: 0.5 },
@@ -172,12 +176,19 @@ export function applyNoise(u: Uniforms, n: { energyFloor: number; returnStrength
 
 const b = (v: boolean) => (v ? 1 : 0);
 
+function setHex(u: THREE.IUniform, hex: string) {
+  const n = parseInt((hex || "#000000").replace("#", ""), 16);
+  (u.value as THREE.Vector3).set(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+}
+
 /** Push the modular Camera FX config into uniforms. */
 export function applyCamFx(u: Uniforms, c: CamFx) {
   u.uDsOn.value = b(c.distort.on); u.uDsTouch.value = c.distort.touch; u.uDsBass.value = c.distort.bass; u.uDsJitter.value = c.distort.jitter;
   u.uHtOn.value = b(c.halftone.on); u.uHtSize.value = c.halftone.size; u.uHtAngle.value = c.halftone.angle; u.uHtShape.value = c.halftone.shape; u.uHtAudio.value = c.halftone.audio;
   u.uHtDepth.value = b(c.halftone.depth); u.uHtCenterSize.value = c.halftone.centerSize; u.uHtEdgeSize.value = c.halftone.edgeSize; u.uHtFalloff.value = c.halftone.falloff;
   u.uHtFocusR.value = c.halftone.focusRadius; u.uHtFocusSoft.value = c.halftone.focusSoft; u.uHtFocusMode.value = c.halftone.focusMode; u.uHtFocusX.value = c.halftone.focusX; u.uHtFocusY.value = c.halftone.focusY;
+  u.uHtSil.value = b(c.halftone.silhouette); u.uHtColorMode.value = c.halftone.colorMode; u.uHtInvert.value = b(c.halftone.invert);
+  setHex(u.uHtBg, c.halftone.bg); setHex(u.uHtInk1, c.halftone.ink1); setHex(u.uHtInk2, c.halftone.ink2);
   u.uDmOn.value = b(c.dotmatrix.on); u.uDmDensity.value = c.dotmatrix.density; u.uDmGlow.value = c.dotmatrix.glow; u.uDmAudio.value = c.dotmatrix.audio;
   u.uDiOn.value = b(c.dither.on); u.uDiAlgo.value = c.dither.algo; u.uDiScale.value = c.dither.scale; u.uDiThresh.value = c.dither.threshold; u.uDiContrast.value = c.dither.contrast; u.uDiNoise.value = c.dither.noise; u.uDiAudio.value = c.dither.audio;
   u.uEdOn.value = b(c.edge.on); u.uEdStrength.value = c.edge.strength; u.uEdThick.value = c.edge.thickness; u.uEdGlow.value = c.edge.glow; u.uEdInvert.value = b(c.edge.invert); u.uEdAudio.value = c.edge.audio;
@@ -211,6 +222,8 @@ export function applySignals(u: Uniforms, time: number) {
   u.uCamActive.value = signals.camActive ? 1 : 0;
   u.uMotion.value = signals.motionTexture ?? DEFAULT_TEX;
   u.uMotionActive.value = signals.motionTexture ? 1 : 0;
+  u.uMask.value = signals.maskTexture ?? DEFAULT_TEX;
+  u.uMaskActive.value = signals.maskTexture ? 1 : 0;
   // hand motion reinforces camera-motion so every scene reacts to the body
   u.uCamMotion.value = Math.max(signals.camMotion, signals.hands.energy * 0.8);
   u.uCamBright.value = signals.camBrightness;

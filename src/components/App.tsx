@@ -13,6 +13,7 @@ import { useStore } from "@/store/useStore";
 import { useAudio } from "@/audio/useAudio";
 import { useWebcam } from "@/camera/useWebcam";
 import { useHands } from "@/camera/useHands";
+import { useSegmentation } from "@/camera/useSegmentation";
 import { usePointer } from "@/hooks/usePointer";
 import { useRecorder } from "@/hooks/useRecorder";
 import { SCENES } from "@/lib/types";
@@ -45,6 +46,7 @@ export default function App() {
   useAudio();
   useWebcam();
   useHands();
+  useSegmentation();
   usePointer();
   const { snapshot, toggleRecording } = useRecorder();
 

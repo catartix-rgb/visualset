@@ -56,6 +56,7 @@ export interface Signals {
   camBrightness: number;
   camTexture: Texture | null;
   motionTexture: Texture | null; // per-cell webcam motion map (silhouette movement)
+  maskTexture: Texture | null; // person segmentation mask (1 = person, 0 = background)
   camActive: boolean;
 
   // Hand tracking (MediaPipe). Positions in uv space 0..1, y up.
@@ -87,6 +88,7 @@ export const signals: Signals = {
   camBrightness: 0,
   camTexture: null,
   motionTexture: null,
+  maskTexture: null,
   camActive: false,
   hands: {
     active: false,

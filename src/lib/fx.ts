@@ -46,6 +46,8 @@ export interface CamFx {
     // Depth / Focus Halftone: bigger dots near a focus point, finer + denser toward edges
     depth: boolean; centerSize: number; edgeSize: number; falloff: number;
     focusRadius: number; focusSoft: number; focusMode: number; focusX: number; focusY: number;
+    // Silhouette Halftone: segment the person and build the figure entirely from dots
+    silhouette: boolean; colorMode: number; invert: boolean; bg: string; ink1: string; ink2: string;
   };
   dotmatrix: { on: boolean; density: number; glow: number; audio: number };
   dither: { on: boolean; algo: number; scale: number; threshold: number; contrast: number; noise: number; audio: number };
@@ -69,6 +71,7 @@ export type CamFxStage = keyof CamFx;
 
 export const DITHER_ALGOS = ["Bayer", "Ordered", "Atkinson", "Random"] as const;
 export const HALFTONE_SHAPES = ["Circle", "Square", "Line"] as const;
+export const HALFTONE_COLOR_MODES = ["Black / White", "Duotone", "Tritone"] as const;
 export const SORT_DIRECTIONS = ["Up", "Down", "Left", "Right"] as const;
 export const FOCUS_MODES = ["Center", "Mouse", "Finger", "Manual"] as const;
 export const PIXELSORT_MODES = [
@@ -83,6 +86,7 @@ export function defaultCamFx(): CamFx {
       on: false, size: 0.55, angle: 0.4, shape: 0, audio: 0.6,
       depth: false, centerSize: 0.85, edgeSize: 0.2, falloff: 1.6,
       focusRadius: 0.4, focusSoft: 0.25, focusMode: 0, focusX: 0.5, focusY: 0.5,
+      silhouette: false, colorMode: 0, invert: false, bg: "#f4f1ea", ink1: "#0d0d10", ink2: "#e23b54",
     },
     dotmatrix: { on: false, density: 90, glow: 0.6, audio: 0.5 },
     dither: { on: false, algo: 0, scale: 1, threshold: 0.5, contrast: 1, noise: 0.1, audio: 0.4 },

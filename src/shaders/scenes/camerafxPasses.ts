@@ -13,6 +13,8 @@ uniform float uDsTouch, uDsBass, uDsJitter;
 uniform float uHtSize, uHtAngle, uHtShape, uHtAudio;
 uniform float uHtDepth, uHtCenterSize, uHtEdgeSize, uHtFalloff;
 uniform float uHtFocusR, uHtFocusSoft, uHtFocusMode, uHtFocusX, uHtFocusY;
+uniform float uHtSil, uHtColorMode, uHtInvert;
+uniform vec3 uHtBg, uHtInk1, uHtInk2;
 uniform float uDmDensity, uDmGlow, uDmAudio;
 uniform float uDiAlgo, uDiScale, uDiThresh, uDiContrast, uDiNoise, uDiAudio;
 uniform float uEdStrength, uEdThick, uEdGlow, uEdInvert, uEdAudio;
@@ -98,15 +100,35 @@ const EFFECTS: Record<CamFxStage, string> = {
         sizeLocal = clamp(uHtSize + uBass * uHtAudio * 0.5, 0.05, 1.0);
       }
 
-      // bigger size -> fewer/larger cells; smaller -> denser/finer (density rises at edges)
-      float cells = mix(230.0, 40.0, sizeLocal);
+      // bigger size -> fewer/larger cells; smaller -> denser/finer. Mids add density.
+      float cells = mix(230.0, 40.0, sizeLocal) * (1.0 + uMid * uHtAudio * 0.5);
       vec2 rc = (vUv - 0.5); rc *= rot(uHtAngle); rc += 0.5;
       vec2 g = fract(rc * cells * vec2(scr, 1.0)) - 0.5;
+      // dark areas -> bigger dots; bass expands them
       float radius = (1.0 - lum) * 0.62 * (0.85 + uBass * uHtAudio);
       int shape = int(uHtShape + 0.5);
       float dsh = shape == 0 ? length(g) : shape == 1 ? max(abs(g.x), abs(g.y)) : abs(g.y);
       float ink = smoothstep(radius, radius - 0.08, dsh);
-      gl_FragColor = vec4(ramp(0.15 + lum * 0.8) * ink, 1.0);
+
+      if(uHtSil > 0.5){
+        // SILHOUETTE: segment the person and build the figure ENTIRELY from dots over a
+        // flat poster background — the photo / room / background is discarded.
+        vec2 muv = mirrorUv(coverUv(vUv, 1.3333, scr));
+        float fig = smoothstep(0.4, 0.6, maskAt(muv));
+        vec3 bgC, inkC;
+        int cm = int(uHtColorMode + 0.5);
+        if(cm == 0){               // black / white
+          bgC  = uHtInvert > 0.5 ? vec3(0.04) : vec3(0.96);
+          inkC = uHtInvert > 0.5 ? vec3(0.97) : vec3(0.05);
+        } else if(cm == 1){        // duotone
+          bgC = uHtBg; inkC = uHtInk1;
+        } else {                   // tritone: shadows vs highlights use different inks
+          bgC = uHtBg; inkC = mix(uHtInk1, uHtInk2, smoothstep(0.35, 0.75, lum));
+        }
+        gl_FragColor = vec4(mix(bgC, inkC, ink * fig), 1.0);
+      } else {
+        gl_FragColor = vec4(ramp(0.15 + lum * 0.8) * ink, 1.0);
+      }
     }`),
 
   dotmatrix: build(/* glsl */ `
