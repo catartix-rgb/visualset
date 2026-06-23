@@ -2,7 +2,7 @@
 import { useControls, folder } from "leva";
 import { useStore } from "@/store/useStore";
 import { PALETTES, paletteByName } from "@/lib/palettes";
-import { DITHER_ALGOS, HALFTONE_SHAPES, SORT_DIRECTIONS, FOCUS_MODES, type CamFxStage } from "@/lib/fx";
+import { DITHER_ALGOS, HALFTONE_SHAPES, PIXELSORT_MODES, FOCUS_MODES, type CamFxStage } from "@/lib/fx";
 
 /**
  * Registers all Leva controls and binds them to the store. Keyed by `${seed}:${sceneId}`
@@ -134,10 +134,17 @@ export function ControlPanel() {
               ),
               "Pixel Sort": folder(
                 {
-                  psDir: sel("pixelsort", "direction", "direction", SORT_DIRECTIONS),
-                  psAmount: cfp("pixelsort", "amount", "amount", { min: 0, max: 1 }),
+                  psMode: sel("pixelsort", "mode", "mode", PIXELSORT_MODES),
                   psThresh: cfp("pixelsort", "threshold", "threshold", { min: 0, max: 1 }),
+                  psLength: cfp("pixelsort", "sortLength", "sort length", { min: 0, max: 1 }),
+                  psAngle: cfp("pixelsort", "angle", "direction", { min: 0, max: 1 }),
                   psSpeed: cfp("pixelsort", "speed", "speed", { min: 0, max: 2 }),
+                  psDensity: cfp("pixelsort", "density", "density", { min: 0, max: 1 }),
+                  psBright: cfp("pixelsort", "brightness", "brightness", { min: 0, max: 2 }),
+                  psColor: cfp("pixelsort", "color", "color", { min: 0, max: 1 }),
+                  psMotion: cfp("pixelsort", "motion", "motion", { min: 0, max: 3 }),
+                  psAmount: cfp("pixelsort", "amount", "amount", { min: 0, max: 1 }),
+                  psAudio: cfp("pixelsort", "audio", "audio", { min: 0, max: 2 }),
                 },
                 { collapsed: true }
               ),

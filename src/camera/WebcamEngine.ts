@@ -17,6 +17,10 @@ export class WebcamEngine {
   private raf = 0;
   motionToForce = 1;
 
+  // per-cell motion map (frame difference with a decaying trail) exposed as a texture
+  motionTexture: THREE.DataTexture | null = null;
+  private motionData: Uint8Array = new Uint8Array(0);
+
   get isRunning() {
     return !!this.stream;
   }
@@ -45,7 +49,16 @@ export class WebcamEngine {
     this.canvas.height = SAMPLE;
     this.cctx = this.canvas.getContext("2d", { willReadFrequently: true });
 
+    this.motionData = new Uint8Array(SAMPLE * SAMPLE * 4);
+    for (let i = 3; i < this.motionData.length; i += 4) this.motionData[i] = 255;
+    const mtex = new THREE.DataTexture(this.motionData, SAMPLE, SAMPLE, THREE.RGBAFormat);
+    mtex.minFilter = THREE.LinearFilter;
+    mtex.magFilter = THREE.LinearFilter;
+    mtex.needsUpdate = true;
+    this.motionTexture = mtex;
+
     signals.camTexture = tex;
+    signals.motionTexture = mtex;
     signals.camActive = true;
     this.loop();
   }
@@ -57,9 +70,12 @@ export class WebcamEngine {
     this.stream = null;
     this.texture?.dispose();
     this.texture = null;
+    this.motionTexture?.dispose();
+    this.motionTexture = null;
     this.video = null;
     this.prev = null;
     signals.camTexture = null;
+    signals.motionTexture = null;
     signals.camActive = false;
     signals.camMotion = 0;
     signals.camBrightness = 0;
@@ -80,12 +96,17 @@ export class WebcamEngine {
         for (let i = 0; i < frame.length; i += 4) {
           const lum = (frame[i] + frame[i + 1] + frame[i + 2]) / 3;
           const plum = (this.prev[i] + this.prev[i + 1] + this.prev[i + 2]) / 3;
-          motion += Math.abs(lum - plum);
+          const diff = Math.abs(lum - plum);
+          motion += diff;
           bright += lum;
+          // per-cell motion with a decaying trail -> silhouette "streaks" that linger
+          const v = Math.max(Math.min(255, diff * 4), this.motionData[i] * 0.86);
+          this.motionData[i] = this.motionData[i + 1] = this.motionData[i + 2] = v;
         }
         const px = frame.length / 4;
         motion = motion / px / 255; // 0..1 (typically small)
         bright = bright / px / 255;
+        if (this.motionTexture) this.motionTexture.needsUpdate = true;
       }
       this.prev = frame.slice();
 

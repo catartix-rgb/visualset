@@ -53,7 +53,11 @@ export interface CamFx {
   posterize: { on: boolean; levels: number; audio: number };
   threshold: { on: boolean; value: number; soft: number; invert: boolean; audio: number };
   mono: { on: boolean; tint: number; gamma: number };
-  pixelsort: { on: boolean; amount: number; threshold: number; direction: number; speed: number };
+  pixelsort: {
+    on: boolean; amount: number; threshold: number; mode: number; sortLength: number;
+    angle: number; speed: number; density: number; brightness: number; color: number;
+    motion: number; audio: number;
+  };
   chroma: { on: boolean; amount: number; audio: number };
   scan: { on: boolean; intensity: number; spacing: number; thickness: number };
   crt: { on: boolean; curvature: number; glow: number };
@@ -67,6 +71,9 @@ export const DITHER_ALGOS = ["Bayer", "Ordered", "Atkinson", "Random"] as const;
 export const HALFTONE_SHAPES = ["Circle", "Square", "Line"] as const;
 export const SORT_DIRECTIONS = ["Up", "Down", "Left", "Right"] as const;
 export const FOCUS_MODES = ["Center", "Mouse", "Finger", "Manual"] as const;
+export const PIXELSORT_MODES = [
+  "Horizontal", "Vertical", "Radial", "Directional", "Noise Driven", "Motion Driven",
+] as const;
 
 // Nothing is enabled by default — Camera FX with no stages on == Raw Camera.
 export function defaultCamFx(): CamFx {
@@ -83,7 +90,10 @@ export function defaultCamFx(): CamFx {
     posterize: { on: false, levels: 5, audio: 0.4 },
     threshold: { on: false, value: 0.5, soft: 0.08, invert: false, audio: 0.6 },
     mono: { on: false, tint: 0.5, gamma: 1 },
-    pixelsort: { on: false, amount: 0.4, threshold: 0.6, direction: 0, speed: 0 },
+    pixelsort: {
+      on: false, amount: 0.85, threshold: 0.35, mode: 0, sortLength: 0.4,
+      angle: 0.5, speed: 0.3, density: 0.6, brightness: 0.7, color: 0.2, motion: 1, audio: 0.6,
+    },
     chroma: { on: false, amount: 0.3, audio: 0.7 },
     scan: { on: false, intensity: 0.4, spacing: 700, thickness: 0.5 },
     crt: { on: false, curvature: 0.3, glow: 0.5 },

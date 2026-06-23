@@ -19,7 +19,7 @@ uniform float uEdStrength, uEdThick, uEdGlow, uEdInvert, uEdAudio;
 uniform float uPoLevels, uPoAudio;
 uniform float uThValue, uThSoft, uThInvert, uThAudio;
 uniform float uMoTint, uMoGamma;
-uniform float uPsAmount, uPsThresh, uPsDir, uPsSpeed;
+uniform float uPsAmount, uPsThresh, uPsMode, uPsLength, uPsAngle, uPsSpeed, uPsDensity, uPsBright, uPsColor, uPsMotion, uPsAudio;
 uniform float uChAmount, uChAudio;
 uniform float uScIntensity, uScSpacing, uScThick;
 uniform float uCrtCurve, uCrtGlow;
@@ -164,17 +164,55 @@ const EFFECTS: Record<CamFxStage, string> = {
     }`),
 
   pixelsort: build(/* glsl */ `
+    // sort criterion: brightness, optionally biased toward colour intensity
+    float psScore(vec3 c){ return mix(lumc(c), max(max(c.r, c.g), c.b), uPsColor); }
+
     void main(){
-      vec2 dir = uPsDir < 0.5 ? vec2(0.0,1.0) : uPsDir < 1.5 ? vec2(0.0,-1.0)
-               : uPsDir < 2.5 ? vec2(-1.0,0.0) : vec2(1.0,0.0);
-      vec2 anim = dir * uPsSpeed * 0.05 * sin(uTime);
-      vec3 s0 = src(vUv); vec3 acc = s0; float best = lumc(s0);
-      for(int i=1;i<7;i++){
-        vec3 s = src(vUv + dir * float(i) * 0.01 * (0.5 + uPsAmount) + anim);
-        float lz = lumc(s);
-        if(lz > uPsThresh && lz > best){ best = lz; acc = s; }
+      vec3 s0 = src(vUv);
+      int mode = int(uPsMode + 0.5);
+      vec2 cen = vUv - 0.5;
+      float motion = motionAt(vUv);
+
+      // ---- sort direction per mode ----
+      vec2 dir;
+      if(mode == 0) dir = vec2(1.0, 0.0);                 // horizontal
+      else if(mode == 1) dir = vec2(0.0, 1.0);            // vertical
+      else if(mode == 2) dir = normalize(cen + 1e-4);     // radial
+      else if(mode == 3){ float a = uPsAngle * 6.2831853 + uMid * uPsAudio * 3.0; dir = vec2(cos(a), sin(a)); } // directional (+mid bends it)
+      else if(mode == 4) dir = normalize(curl(vUv * 3.0 + uTime * 0.2 * uPsSpeed) + 1e-4); // noise driven
+      else {                                              // motion driven: follow silhouette flow
+        float e = 2.0 / uRes.y;
+        vec2 g = vec2(motionAt(vUv + vec2(e,0.0)) - motionAt(vUv - vec2(e,0.0)),
+                      motionAt(vUv + vec2(0.0,e)) - motionAt(vUv - vec2(0.0,e)));
+        dir = normalize(g + vec2(0.0001, 1.0));
       }
-      gl_FragColor = vec4(mix(s0, acc, uPsAmount), 1.0);
+
+      // ---- streak length: base + bass (audio) + local motion (silhouette) ----
+      float baseScore = psScore(s0);
+      float len = uPsLength * (0.15 + uPsDensity)
+                * (1.0 + uBass * uPsAudio * 1.6)
+                * (1.0 + motion * uPsMotion * 4.0)
+                * (0.4 + baseScore * uPsBright * 1.6);
+      // animate the read offset so streaks flow / sweep over time
+      vec2 phase = dir * sin(uTime * uPsSpeed + vUv.y * 20.0) * 0.004 * uPsSpeed;
+
+      // march back along the direction, carrying the brightest sample inside a span
+      // that stays above threshold; crossing threshold ends the span (fragmentation).
+      vec3 acc = s0; float best = baseScore; float cont = 1.0;
+      for(int i = 1; i < 28; i++){
+        float fi = float(i) / 28.0;
+        vec2 uv2 = vUv - dir * fi * len + phase;
+        // treble adds organic jitter perpendicular to the sort -> finer fragmentation
+        uv2 += vec2(-dir.y, dir.x) * snoise(vUv * 60.0 + uTime) * uTreble * uPsAudio * 0.006;
+        vec3 s = src(uv2);
+        float sc = psScore(s);
+        cont *= step(uPsThresh, sc + 0.001);   // span ends once below threshold
+        if(cont > 0.5 && sc > best){ best = sc; acc = s; }
+      }
+
+      // sorted pixels only replace the image where the span criterion is met
+      float k = uPsAmount * smoothstep(uPsThresh - 0.05, uPsThresh + 0.05, baseScore + motion * uPsMotion);
+      gl_FragColor = vec4(mix(s0, acc, k), 1.0);
     }`),
 
   chroma: build(/* glsl */ `

@@ -35,6 +35,13 @@ GPU in the browser).
   matters (Halftone→Dither ≠ Dither→Halftone). Nothing is on by default — an empty chain
   is just Raw Camera. A **Send to Visual Engine** toggle optionally feeds the camera
   into the generative scenes; off by default so the two systems stay fully independent.
+- **Artistic Pixel Sort** — a real span-based pixel-sort (not a smear): pixels stream
+  along the sort axis within runs that stay above a brightness/colour threshold, so the
+  image fragments into the characteristic streaks and sweeps. Modes: Horizontal,
+  Vertical, Radial, Directional, Noise-Driven and **Motion-Driven** — the webcam's
+  per-pixel motion map (your silhouette) drives streak direction and length, so moving
+  your arm physically drags pixels. Controls: threshold, sort length, direction, speed,
+  density, brightness/colour/motion influence; bass lengthens sweeps, treble fragments.
 - **Audio-awakened Particle Flow** — the particle system sleeps into a stable, clean
   base shape with minimal elegant motion when there's no sound, and *wakes up* with the
   music: bass drives big expansion/compression, mids drive morphing and reorganisation,

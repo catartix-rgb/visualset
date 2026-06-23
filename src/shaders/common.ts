@@ -25,6 +25,8 @@ uniform sampler2D uCam;
 uniform float uCamActive;
 uniform float uCamMotion;
 uniform float uCamBright;
+uniform sampler2D uMotion;   // per-cell webcam motion map (silhouette movement)
+uniform float uMotionActive;
 uniform float uCamFeed;
 uniform float uCamMirror;
 
@@ -189,6 +191,12 @@ vec3 applyCamera(vec3 col, vec2 uv){
 vec3 touchAt(vec2 uv){
   if(uTouchActive < 0.5) return vec3(0.0);
   return texture2D(uTouch, uv).rgb;
+}
+
+// local webcam motion (0..1) at a uv — drives silhouette-reactive effects
+float motionAt(vec2 uv){
+  if(uMotionActive < 0.5) return 0.0;
+  return texture2D(uMotion, clamp(uv, 0.0, 1.0)).r;
 }
 
 // kaleidoscope fold

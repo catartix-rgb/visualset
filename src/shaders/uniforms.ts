@@ -36,6 +36,8 @@ export function buildUniforms(): Uniforms {
     uCamActive: { value: 0 },
     uCamMotion: { value: 0 },
     uCamBright: { value: 0 },
+    uMotion: { value: DEFAULT_TEX },
+    uMotionActive: { value: 0 },
     uCamFeed: { value: 0 },
     uCamMirror: { value: 1 },
 
@@ -88,7 +90,8 @@ export function buildUniforms(): Uniforms {
     uPoOn: { value: 0 }, uPoLevels: { value: 5 }, uPoAudio: { value: 0.4 },
     uThOn: { value: 0 }, uThValue: { value: 0.5 }, uThSoft: { value: 0.08 }, uThInvert: { value: 0 }, uThAudio: { value: 0.6 },
     uMoOn: { value: 0 }, uMoTint: { value: 0.5 }, uMoGamma: { value: 1 },
-    uPsOn: { value: 0 }, uPsAmount: { value: 0.4 }, uPsThresh: { value: 0.6 }, uPsDir: { value: 0 }, uPsSpeed: { value: 0 },
+    uPsOn: { value: 0 }, uPsAmount: { value: 0.85 }, uPsThresh: { value: 0.35 }, uPsMode: { value: 0 }, uPsLength: { value: 0.4 },
+    uPsAngle: { value: 0.5 }, uPsSpeed: { value: 0.3 }, uPsDensity: { value: 0.6 }, uPsBright: { value: 0.7 }, uPsColor: { value: 0.2 }, uPsMotion: { value: 1 }, uPsAudio: { value: 0.6 },
     uChOn: { value: 0 }, uChAmount: { value: 0.3 }, uChAudio: { value: 0.7 },
     uScOn: { value: 0 }, uScIntensity: { value: 0.4 }, uScSpacing: { value: 700 }, uScThick: { value: 0.5 },
     uCrtOn: { value: 0 }, uCrtCurve: { value: 0.3 }, uCrtGlow: { value: 0.5 },
@@ -181,7 +184,9 @@ export function applyCamFx(u: Uniforms, c: CamFx) {
   u.uPoOn.value = b(c.posterize.on); u.uPoLevels.value = c.posterize.levels; u.uPoAudio.value = c.posterize.audio;
   u.uThOn.value = b(c.threshold.on); u.uThValue.value = c.threshold.value; u.uThSoft.value = c.threshold.soft; u.uThInvert.value = b(c.threshold.invert); u.uThAudio.value = c.threshold.audio;
   u.uMoOn.value = b(c.mono.on); u.uMoTint.value = c.mono.tint; u.uMoGamma.value = c.mono.gamma;
-  u.uPsOn.value = b(c.pixelsort.on); u.uPsAmount.value = c.pixelsort.amount; u.uPsThresh.value = c.pixelsort.threshold; u.uPsDir.value = c.pixelsort.direction; u.uPsSpeed.value = c.pixelsort.speed;
+  u.uPsOn.value = b(c.pixelsort.on); u.uPsAmount.value = c.pixelsort.amount; u.uPsThresh.value = c.pixelsort.threshold;
+  u.uPsMode.value = c.pixelsort.mode; u.uPsLength.value = c.pixelsort.sortLength; u.uPsAngle.value = c.pixelsort.angle; u.uPsSpeed.value = c.pixelsort.speed;
+  u.uPsDensity.value = c.pixelsort.density; u.uPsBright.value = c.pixelsort.brightness; u.uPsColor.value = c.pixelsort.color; u.uPsMotion.value = c.pixelsort.motion; u.uPsAudio.value = c.pixelsort.audio;
   u.uChOn.value = b(c.chroma.on); u.uChAmount.value = c.chroma.amount; u.uChAudio.value = c.chroma.audio;
   u.uScOn.value = b(c.scan.on); u.uScIntensity.value = c.scan.intensity; u.uScSpacing.value = c.scan.spacing; u.uScThick.value = c.scan.thickness;
   u.uCrtOn.value = b(c.crt.on); u.uCrtCurve.value = c.crt.curvature; u.uCrtGlow.value = c.crt.glow;
@@ -204,6 +209,8 @@ export function applySignals(u: Uniforms, time: number) {
 
   u.uCam.value = signals.camTexture ?? DEFAULT_TEX;
   u.uCamActive.value = signals.camActive ? 1 : 0;
+  u.uMotion.value = signals.motionTexture ?? DEFAULT_TEX;
+  u.uMotionActive.value = signals.motionTexture ? 1 : 0;
   // hand motion reinforces camera-motion so every scene reacts to the body
   u.uCamMotion.value = Math.max(signals.camMotion, signals.hands.energy * 0.8);
   u.uCamBright.value = signals.camBrightness;
