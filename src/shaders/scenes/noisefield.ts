@@ -34,7 +34,7 @@ void main(){
 
   // finger interaction: opens tunnels (clears smoke) + injects energy waves
   float fmag = length(fvel);
-  float dens = clamp(0.62 + 0.6 * f + uBass * 0.3, 0.0, 1.7);
+  float dens = clamp(0.45 + 0.62 * f + uBass * 0.3, 0.0, 1.7);
   // tunnels are softened by return-strength and the fluid decays, so holes heal
   dens -= smoothstep(0.3, 1.4, fmag) * 0.6 * (1.0 - uNfReturn);
   dens += tch.b * uForce * 0.6;               // energy waves
@@ -45,8 +45,8 @@ void main(){
   // energy preservation: never let the composition collapse to dead black
   dens = max(dens, uNfFloor * 0.6);
   vec3 col = ramp(tone);
-  col = mix(uBg, col, smoothstep(-0.15, 0.7, dens));    // dense, billowing body
-  col += ramp(tone) * 0.12 * smoothstep(0.0, 0.5, dens); // ambient smoke fill
+  col = mix(uBg * 0.6, col, smoothstep(0.02, 0.85, dens)); // dense body on a deep ground
+  col += ramp(tone) * 0.07 * smoothstep(0.1, 0.6, dens);   // faint ambient fill
   col = max(col, ramp(tone) * uNfFloor);                 // minimum visual energy floor
 
   // glowing filaments where the warp folds most (coherent, soft)

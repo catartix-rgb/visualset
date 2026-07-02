@@ -159,19 +159,26 @@ vec3 hueShift(vec3 col, float h){
   return col*c + cross(k,col)*s + k*dot(k,col)*(1.0-c);
 }
 
+// ACES-ish filmic curve: highlights roll off softly instead of clipping to white.
+vec3 filmic(vec3 x){
+  x = max(x, 0.0);
+  return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0);
+}
+
 vec3 grade(vec3 col, vec2 uv){
   // saturation
   float l=dot(col,vec3(0.2126,0.7152,0.0722));
   col=mix(vec3(l),col,uSat);
   // hue
   col=hueShift(col,uHue);
-  // contrast around mid grey
-  col=(col-0.5)*uContrast+0.5;
-  // glow lift driven by audio
+  // glow lift driven by audio (pre-tonemap so it blooms, not clips)
   col+=col*uGlow*0.6*(0.5+uAToGlow*uTreble);
-  // vignette
+  // filmic tonemap, then contrast around mid grey
+  col=filmic(col);
+  col=(col-0.5)*uContrast+0.5;
+  // gentle two-stage vignette (falloff starts late, never crushes the frame)
   float d=distance(uv,vec2(0.5));
-  col*=smoothstep(0.95,0.25,d*uVignette*1.6);
+  col*=mix(1.0, smoothstep(1.05,0.3,d*1.5), clamp(uVignette,0.0,1.5)*0.8);
   // film grain
   float g=hash21(uv*uRes+uTime)*2.0-1.0;
   col+=g*uGrain;
